@@ -161,7 +161,6 @@
         .gallery { margin-top: 80px; display: grid; gap: 30px; }
         .gallery img { width: 100%; border-radius: 20px; border: 1px solid var(--border); }
 
-        /* Cooperation Banner */
         .cooperation-banner {
             max-width: 1200px;
             margin: 120px auto 0;
@@ -174,7 +173,6 @@
         .cooperation-banner p { font-size: 1.2rem; color: var(--text-secondary); }
         .brief-trigger { color: var(--accent); cursor: pointer; font-weight: 800; text-decoration: underline; }
 
-        /* Modal Brief */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.9); backdrop-filter: blur(10px);
@@ -186,7 +184,6 @@
         }
         .close-modal { position: absolute; top: 20px; right: 20px; cursor: pointer; font-size: 1.5rem; }
 
-        /* Footer */
         footer { padding: 80px 8%; border-top: 1px solid var(--border); margin-top: 100px; }
         .footer-grid { display: flex; justify-content: space-between; align-items: flex-end; }
         .footer-contacts a { 
@@ -296,23 +293,32 @@
         function renderProject(data) {
             window.lastData = data;
             const container = document.getElementById('project-render');
-            const title = currentLang === 'ua' ? (data.titleUa || data.title) : (data.titleEn || data.title);
-            const desc = currentLang === 'ua' ? (data.descUa || data.desc) : (data.descEn || data.desc);
+            
+            // ПАРСИНГ МУЛЬТИМОВНОСТІ (розділення через / або пріоритет полів)
+            const splitText = (txt) => (txt && txt.includes(' / ')) ? txt.split(' / ') : [txt, txt];
+            
+            const titleArr = splitText(data.title);
+            const descArr = splitText(data.description);
+            
+            const title = currentLang === 'ua' ? titleArr[0] : (titleArr[1] || titleArr[0]);
+            const desc = currentLang === 'ua' ? descArr[0] : (descArr[1] || descArr[0]);
+            
+            // ПАРСИНГ МЕТА-ТЕГУ
             const meta = data.customMeta || (currentLang === 'ua' ? 'АРТЕФАКТ' : 'ARTIFACT');
             
-            // Logic for tags
+            // ЛОГІКА КАТЕГОРІЙ (МАВСИВ З АДМІНКИ 3.8)
             let tags = [];
-            if (data.category) {
-                if (Array.isArray(data.category)) tags = data.category.map(c => c.name || c);
-                else if (typeof data.category === 'string') tags = data.category.split(',').map(t => t.trim());
-                else if (data.category.name) tags = [data.category.name];
+            if (data.categories && Array.isArray(data.categories)) {
+                tags = data.categories;
+            } else if (data.category) {
+                tags = typeof data.category === 'string' ? data.category.split(',').map(t => t.trim()) : [];
             }
 
             container.innerHTML = `
-                <div class="project-meta">${meta} / ${tags.join(' / ')}</div>
+                <div class="project-meta">${meta}</div>
                 <h1>${title}</h1>
                 <div class="hero-img-box">
-                    <img src="${data.mainImage || data.image}" class="hero-img" alt="${title}">
+                    <img src="${data.mainImage}" class="hero-img" alt="${title}">
                 </div>
                 <div class="project-grid">
                     <div class="sidebar">
@@ -324,11 +330,19 @@
                             <h3>${currentLang === 'ua' ? 'КАТЕГОРІЇ' : 'CATEGORIES'}</h3>
                             <div>${tags.map(t => `<span class="tech-tag">${t}</span>`).join('')}</div>
                         </div>
-                        ${data.link ? `<a href="${data.link}" target="_blank" style="color: var(--accent); font-weight: 800;">OPEN PROJECT <i class="fa-solid fa-arrow-right"></i></a>` : ''}
+                        ${data.githubLink ? `
+                        <div class="info-block">
+                            <h3>GITHUB</h3>
+                            <a href="${data.githubLink}" target="_blank" style="color: var(--accent); font-weight: 800;">OPEN SOURCE <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+                        </div>` : ''}
                     </div>
                     <div class="main-content">${desc}</div>
                 </div>
-                ${data.gallery ? `<div class="gallery">${Object.values(data.gallery).map(img => `<img src="${img}">`).join('')}</div>` : ''}
+                ${(data.gallery && Array.isArray(data.gallery)) ? `
+                    <div class="gallery">
+                        ${data.gallery.filter(img => img.trim() !== "").map(img => `<img src="${img}">`).join('')}
+                    </div>
+                ` : ''}
             `;
         }
 
