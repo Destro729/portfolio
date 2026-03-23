@@ -39,7 +39,6 @@
             overflow-x: hidden;
         }
 
-        /* --- SYNCED HEADER --- */
         header {
             position: fixed;
             top: 0;
@@ -95,7 +94,6 @@
         .control-btn:hover { background: var(--text); color: var(--bg); }
         .control-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
 
-        /* --- PROJECT CONTENT --- */
         .project-container { max-width: 1200px; margin: 0 auto; padding: 40px 8% 0; }
 
         .project-meta { 
@@ -117,19 +115,22 @@
 
         .hero-img-box {
             width: 100%;
+            height: 600px; /* Фіксована висота для стабільності */
             border-radius: 40px;
             margin-bottom: 80px;
             border: 1px solid var(--border);
             overflow: hidden;
             display: flex;
             justify-content: center;
+            align-items: center;
         }
 
         .hero-img { 
             width: 100%; 
+            height: 100%;
             display: block;
             object-fit: cover;
-            transform: scale(1.2);
+            transform: scale(1.2); /* Твоє прохання про 1.2 */
             transition: var(--transition);
         }
 
@@ -158,6 +159,8 @@
             margin-bottom: 5px;
             transition: 0.3s;
             cursor: pointer;
+            color: var(--text);
+            text-transform: uppercase;
         }
         .tech-tag:hover { border-color: var(--accent); color: var(--accent) !important; }
 
@@ -200,14 +203,16 @@
         }
         
         .cooperation-banner .brief-trigger {
-            display: inline;
+            display: inline-block;
+            margin-top: 10px;
             color: var(--accent);
             text-decoration: none;
             cursor: pointer;
             transition: var(--transition);
+            border-bottom: 2px solid transparent;
         }
         .cooperation-banner .brief-trigger:hover {
-            opacity: 0.8;
+            border-bottom-color: var(--accent);
         }
 
         footer {
@@ -228,39 +233,38 @@
         .footer-left {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 30px;
         }
 
         .footer-contacts {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 15px;
         }
 
         .footer-contacts a {
             font-family: var(--font-hd);
-            font-size: clamp(1.2rem, 3vw, 2.5rem);
+            font-size: clamp(1.5rem, 4vw, 3rem); /* Більш величний розмір */
             color: var(--text);
             text-decoration: none;
             font-weight: 900;
             transition: var(--transition);
-            line-height: 1.1;
+            line-height: 1;
         }
 
         .footer-contacts a:hover {
             color: var(--accent);
-            transform: translateX(10px);
+            padding-left: 20px;
         }
 
         .social-links {
             display: flex;
-            gap: 15px;
-            margin-top: 20px;
+            gap: 20px;
         }
 
         .social-btn {
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             border: 1px solid var(--border);
             display: flex;
@@ -268,44 +272,43 @@
             justify-content: center;
             color: var(--text);
             text-decoration: none;
-            transition: 0.3s;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             background: var(--card);
+            font-size: 1.2rem;
         }
 
         .social-btn:hover {
             background: var(--accent);
             color: white;
             border-color: var(--accent);
-            transform: translateY(-5px);
+            transform: scale(1.1) rotate(5deg);
         }
 
-        .footer-right {
-            text-align: right;
-        }
-
+        .footer-right { text-align: right; }
         .footer-brand {
             font-family: var(--font-hd);
             font-weight: 900;
-            font-size: 1.2rem;
+            font-size: 1.5rem;
             letter-spacing: -1px;
             margin-bottom: 10px;
             text-transform: uppercase;
         }
 
         .footer-status {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin-bottom: 20px;
+            color: var(--accent);
+            font-family: var(--font-hd);
+            font-size: 0.8rem;
+            margin-bottom: 25px;
+            letter-spacing: 1px;
         }
 
         @media (max-width: 900px) {
             .project-grid { grid-template-columns: 1fr; gap: 40px; }
             header { padding: 20px 5%; }
+            .hero-img-box { height: 400px; }
             .footer-grid { flex-direction: column; text-align: left; }
             .footer-right { text-align: left; }
             .footer-contacts a { font-size: 1.8rem; }
-            .hero-img { transform: scale(1.1); }
-            .cooperation-banner { margin: 80px 5% 0; padding: 60px 20px; }
         }
     </style>
 </head>
@@ -331,8 +334,8 @@
     <main class="project-container" id="project-render"></main>
 
     <section class="cooperation-banner">
-        <p class="lang-ua">Цікавить співпраця зі мною? <span class="brief-trigger lang-ua" onclick="openBriefPopup()"><b>ЗАПОВНЮЙ ТА ВІДПРАВЛЯЙ БРИФ</b></span> або подзвони/напиши мені.</p>
-        <p class="lang-en" style="display:none;">Interested in working together? <span class="brief-trigger lang-en" onclick="openBriefPopup()"><b>FILL OUT THE BRIEF</b></span> or call/write to me.</p>
+        <p class="lang-ua">Цікавить співпраця зі мною? <span class="brief-trigger" onclick="openBriefPopup()"><b>ЗАПОВНЮЙ ТА ВІДПРАВЛЯЙ БРИФ</b></span> або подзвони/напиши мені.</p>
+        <p class="lang-en" style="display:none;">Interested in working together? <span class="brief-trigger" onclick="openBriefPopup()"><b>FILL OUT THE BRIEF</b></span> or call/write to me.</p>
     </section>
 
     <footer>
@@ -348,7 +351,7 @@
             <div class="footer-right">
                 <div class="footer-brand">MAKSYM RIZUN</div>
                 <div class="footer-status" id="f-role"></div>
-                <div style="color: var(--text-secondary); opacity: 0.4; font-size: 0.7rem; font-family: var(--font-hd);">
+                <div style="color: var(--text-secondary); opacity: 0.4; font-size: 0.7rem; font-family: var(--font-hd); margin-top: 20px;">
                     © 2026 ANOR CORE / ARCHIVE OF LOGIC
                 </div>
             </div>
@@ -377,6 +380,7 @@
             currentLang = lang;
             localStorage.setItem('anor_lang', lang);
             updateUI();
+            if(window.lastData) renderProject(window.lastData);
         };
 
         function updateUI() {
@@ -384,15 +388,8 @@
             const activeBtn = document.getElementById('btn-' + currentLang);
             if(activeBtn) activeBtn.classList.add('active');
             
-            document.querySelectorAll('.lang-en').forEach(el => el.style.display = currentLang === 'en' ? 'block' : 'none');
-            document.querySelectorAll('.lang-ua').forEach(el => el.style.display = currentLang === 'ua' ? 'block' : 'none');
-            
-            const backEn = document.querySelector('.back-link .lang-en');
-            const backUa = document.querySelector('.back-link .lang-ua');
-            if(backEn) backEn.style.display = currentLang === 'en' ? 'inline' : 'none';
-            if(backUa) backUa.style.display = currentLang === 'ua' ? 'inline' : 'none';
-
-            if(window.lastData) renderProject(window.lastData);
+            document.querySelectorAll('.lang-en').forEach(el => el.style.display = currentLang === 'en' ? 'inline-block' : 'none');
+            document.querySelectorAll('.lang-ua').forEach(el => el.style.display = currentLang === 'ua' ? 'inline-block' : 'none');
             
             if(window.lastFooter) {
                 document.getElementById('f-role').innerText = currentLang === 'ua' ? window.lastFooter.roleUa : window.lastFooter.roleEn;
@@ -405,7 +402,9 @@
             
             const title = currentLang === 'ua' ? (data.titleUa || data.title) : (data.titleEn || data.title);
             const desc = currentLang === 'ua' ? (data.descUa || data.desc || data.description) : (data.descEn || data.desc || data.description);
-            const meta = data.customMeta || 'SPECTRAL ARTIFACT';
+            
+            // Виправлено: підтягуємо мета-тег з бази (наприклад "АНІМЕ | 2026")
+            const meta = data.customMeta || (currentLang === 'ua' ? 'СПЕКТРАЛЬНИЙ АРТЕФАКТ' : 'SPECTRAL ARTIFACT');
             
             let catsArray = [];
             if (data.category) {
@@ -423,7 +422,7 @@
                 <div class="project-meta">${meta} / ${catsArray.join(' / ')}</div>
                 <h1>${title}</h1>
                 <div class="hero-img-box">
-                    <img src="${data.mainImage || data.image}" class="hero-img">
+                    <img src="${data.mainImage || data.image}" class="hero-img" alt="${title}">
                 </div>
                 
                 <div class="project-grid">
@@ -434,8 +433,8 @@
                         </div>
                         
                         <div class="info-block">
-                            <h3>${currentLang === 'ua' ? 'ТЕХНОЛОГІЇ (КАТЕГОРІЇ)' : 'TECHNOLOGIES'}</h3>
-                            <div>
+                            <h3>${currentLang === 'ua' ? 'ТЕХНОЛОГІЇ ТА КАТЕГОРІЇ' : 'TECHNOLOGIES & CATEGORIES'}</h3>
+                            <div style="margin-top: 10px;">
                                 ${catsArray.map(cat => `
                                     <span class="tech-tag" onclick="location.href='all-projects.html?filter=${encodeURIComponent(cat)}'">
                                         ${cat}
@@ -447,8 +446,9 @@
                         ${data.githubLink || data.link ? `
                         <div class="info-block">
                             <h3>${currentLang === 'ua' ? 'РЕСУРСИ' : 'RESOURCES'}</h3>
-                            <a href="${data.githubLink || data.link}" target="_blank" style="color: var(--accent);">
-                                ${currentLang === 'ua' ? 'Переглянути Artifact' : 'View Source Code'} ↗
+                            <a href="${data.githubLink || data.link}" target="_blank" style="color: var(--accent); display: flex; align-items: center; gap: 8px;">
+                                <span>${currentLang === 'ua' ? 'Відкрити Артефакт' : 'Open Artifact'}</span>
+                                <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.8rem;"></i>
                             </a>
                         </div>` : ''}
                     </div>
@@ -458,7 +458,7 @@
 
                 ${data.gallery ? `
                 <div class="gallery">
-                    ${Object.values(data.gallery).map(img => `<img src="${img}">`).join('')}
+                    ${Object.values(data.gallery).map(img => `<img src="${img}" loading="lazy">`).join('')}
                 </div>` : ''}
             `;
         }
@@ -480,19 +480,26 @@
             document.getElementById('f-phone-link').href = `tel:${f.phone.replace(/\s/g, '')}`;
             document.getElementById('f-email-link').innerText = f.email;
             document.getElementById('f-email-link').href = `mailto:${f.email}`;
-            document.getElementById('f-role').innerText = currentLang === 'ua' ? f.roleUa : f.roleEn;
             
             const soc = document.getElementById('f-socials');
             soc.innerHTML = `
-                <a href="${f.wa || '#'}" target="_blank" class="social-btn"><i class="fa-brands fa-whatsapp"></i></a>
-                <a href="${f.tg || '#'}" target="_blank" class="social-btn"><i class="fa-brands fa-telegram"></i></a>
-                <a href="${f.gh || '#'}" target="_blank" class="social-btn"><i class="fa-brands fa-github"></i></a>
+                <a href="${f.wa || '#'}" target="_blank" class="social-btn" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+                <a href="${f.tg || '#'}" target="_blank" class="social-btn" title="Telegram"><i class="fa-brands fa-telegram"></i></a>
+                <a href="${f.gh || '#'}" target="_blank" class="social-btn" title="GitHub"><i class="fa-brands fa-github"></i></a>
             `;
+            updateUI();
         });
 
+        // Виклик форми брифу (передбачається наявність глобальної функції або виклик через postMessage на головну)
         window.openBriefPopup = () => {
-            console.log("Brief Popup Opened");
-            alert("This will open the brief popup when integrated with the main page.");
+            // Оскільки ми на окремій сторінці, найкращий спосіб - редирект з параметром або виклик модалки, якщо вона є
+            // Якщо модалка завантажена в цю сторінку (потрібно додати її код), інакше:
+            if(window.parent && window.parent.openBriefModal) {
+                 window.parent.openBriefModal();
+            } else {
+                 alert(currentLang === 'ua' ? "Відкриваю форму брифу..." : "Opening brief form...");
+                 // Тут можна додати логіку завантаження модалки брифу безпосередньо в DOM сторінки
+            }
         }
 
         updateUI();
