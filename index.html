@@ -373,7 +373,7 @@
                 <div class="file-upload">
                     <i class="fa-solid fa-paperclip"></i>
                     <span id="fileNameDisplay" class="lang-en">Attach file (optional)</span>
-                    <span id="fileNameDisplayUa" class="lang-ua">Додати файл (опціонально)</span>
+                    <span id="fileNameDisplayUa" class="lang-ua" style="display:none;">Додати файл (опціонально)</span>
                     <input type="file" id="fileInput" onchange="handleFileSelect()">
                 </div>
 
@@ -422,7 +422,7 @@
                     <div class="project-info">
                         <span class="project-tag">${p.category}</span>
                         <h3>${p.title}</h3>
-                        <p>${p.desc.substring(0, 60)}...</p>
+                        <p>${p.desc ? p.desc.substring(0, 60) + '...' : ''}</p>
                     </div>
                 `;
                 
@@ -444,12 +444,16 @@
         onValue(ref(db, 'settings/footer'), (snap) => {
             const f = snap.val();
             if(!f) return;
-            document.getElementById('f-phone-link').innerText = f.phone;
-            document.getElementById('f-phone-link').href = `tel:${f.phone.replace(/\s/g, '')}`;
-            document.getElementById('f-email-link').innerText = f.email;
-            document.getElementById('f-email-link').href = `mailto:${f.email}`;
-            document.getElementById('f-role-ua').innerText = f.roleUa;
-            document.getElementById('f-role-en').innerText = f.roleEn;
+            if(f.phone) {
+                document.getElementById('f-phone-link').innerText = f.phone;
+                document.getElementById('f-phone-link').href = `tel:${f.phone.replace(/\s/g, '')}`;
+            }
+            if(f.email) {
+                document.getElementById('f-email-link').innerText = f.email;
+                document.getElementById('f-email-link').href = `mailto:${f.email}`;
+            }
+            if(f.roleUa) document.getElementById('f-role-ua').innerText = f.roleUa;
+            if(f.roleEn) document.getElementById('f-role-en').innerText = f.roleEn;
             if(f.tg) document.getElementById('f-tg').href = f.tg;
             if(f.wa) document.getElementById('f-wa').href = f.wa;
             if(f.gh) document.getElementById('f-gh').href = f.gh;
@@ -479,9 +483,15 @@
             document.getElementById('contactInput').placeholder = isUa ? "Контакти (TG / Email)" : "Contact Details (TG / Email)";
             document.getElementById('descInput').placeholder = isUa ? "Опишіть завдання (макс 300 симв)..." : "Describe your task (max 300 symbols)...";
             document.getElementById('toast').innerText = isUa ? "✅ УСПІШНО! БРИФ ВІДПРАВЛЕНО." : "✅ SUCCESS! BRIEF SENT.";
-            if (!document.getElementById('fileInput').files.length) {
-                document.getElementById('fileNameDisplay').innerText = "Attach file (optional)";
-                document.getElementById('fileNameDisplayUa').innerText = "Додати файл (опціонально)";
+            
+            const fileEn = document.getElementById('fileNameDisplay');
+            const fileUa = document.getElementById('fileNameDisplayUa');
+            if (isUa) {
+                fileEn.style.display = 'none';
+                fileUa.style.display = 'inline';
+            } else {
+                fileEn.style.display = 'inline';
+                fileUa.style.display = 'none';
             }
         }
 
@@ -498,10 +508,12 @@
 
         document.getElementById('briefForm').onsubmit = (e) => {
             e.preventDefault();
+            // Тут можна додати логіку EmailJS sendForm
             closeModal();
             const toast = document.getElementById('toast');
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 3000);
+            e.target.reset();
         };
 
         const closeBtn = document.getElementById('closeModalBtn');
