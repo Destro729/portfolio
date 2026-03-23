@@ -272,7 +272,7 @@
                 let catsArray = [];
                 if (p.category) {
                     if (Array.isArray(p.category)) {
-                        catsArray = p.category;
+                        catsArray = p.category.map(c => (typeof c === 'object' && c.name) ? c.name : c);
                     } else if (typeof p.category === 'object' && p.category.name) {
                         catsArray = [p.category.name];
                     } else if (typeof p.category === 'string') {
@@ -332,5 +332,3 @@
             if (f.fv) document.getElementById('f-fv').href = f.fv;
         });
     </script>
-</body>
-</html>
