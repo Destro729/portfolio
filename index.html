@@ -416,7 +416,6 @@
             grid.innerHTML = "";
             
             if (data) {
-                // Конвертуємо об'єкт в масив для надійності
                 const projectList = Object.keys(data).map(key => ({
                     id: key,
                     ...data[key]
@@ -427,12 +426,14 @@
                     card.className = 'project-card';
                     card.onclick = () => { window.location.href = `project-details.html?id=${p.id}`; };
                     
-                    // Логіка зображення
                     const projectImg = p.mainImage || p.image || 'img/default.jpg';
                     
-                    // Логіка категорії (якщо прийшов об'єкт, беремо перший ключ або текст)
+                    // --- ЛОГІКА КАТЕГОРІЇ (ФІКС ДЛЯ ВЕРСО) ---
+                    // Тепер беремо саме те, що ти ввів у адмінці
                     let displayCat = "Artifact";
-                    if (p.category) {
+                    if (p.categories && Array.isArray(p.categories)) {
+                        displayCat = p.categories[0];
+                    } else if (p.category) {
                         displayCat = typeof p.category === 'object' ? Object.values(p.category)[0] : p.category;
                     }
 
@@ -467,7 +468,6 @@
         onValue(ref(db, 'settings/footer'), (snap) => {
             const f = snap.val();
             if (f) {
-                // Телефони та пошта
                 if (f.phone) {
                     const phoneEl = document.getElementById('f-phone-link');
                     phoneEl.innerText = f.phone;
@@ -478,12 +478,8 @@
                     emailEl.innerText = f.email;
                     emailEl.href = `mailto:${f.email}`;
                 }
-                
-                // Ролі
                 if (f.roleUa) document.getElementById('f-role-ua').innerText = f.roleUa;
                 if (f.roleEn) document.getElementById('f-role-en').innerText = f.roleEn;
-                
-                // Соціальні мережі
                 if (f.tg) document.getElementById('f-tg').href = f.tg;
                 if (f.wa) document.getElementById('f-wa').href = f.wa;
                 if (f.gh) document.getElementById('f-gh').href = f.gh;
