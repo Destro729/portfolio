@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>All Projects | Maksym Rizun</title>
+    <title>Archive of Logic | Maksym Rizun</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Unbounded:wght@700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -16,46 +16,60 @@
             --border: rgba(255, 255, 255, 0.1);
             --font-hd: 'Unbounded', sans-serif;
             --font-main: 'Inter', sans-serif;
-            --transition: all 0.3s ease;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        body { background: var(--bg); color: var(--text); font-family: var(--font-main); padding: 50px 8%; }
-        
-        .nav-back { margin-bottom: 40px; }
-        .back-link { color: var(--accent); text-decoration: none; font-weight: 800; font-family: var(--font-hd); display: flex; align-items: center; gap: 10px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--bg); color: var(--text); font-family: var(--font-main); padding: 80px 8%; }
 
-        h1 { font-family: var(--font-hd); font-size: clamp(2rem, 5vw, 4rem); margin-bottom: 40px; text-transform: uppercase; }
+        /* Навігація — Змінено шлях назад */
+        .nav-header {
+            position: fixed;
+            top: 0; left: 0; width: 100%;
+            padding: 20px 8%;
+            background: rgba(5, 5, 5, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
 
-        /* Фільтрація */
-        .filters { display: flex; gap: 15px; margin-bottom: 50px; flex-wrap: wrap; }
+        .back-link { 
+            color: var(--text); 
+            text-decoration: none; 
+            font-weight: 800; 
+            font-family: var(--font-hd); 
+            font-size: 0.8rem;
+            display: flex; align-items: center; gap: 10px;
+            transition: var(--transition);
+        }
+        .back-link:hover { color: var(--accent); transform: translateX(-5px); }
+
+        h1 { font-family: var(--font-hd); font-size: clamp(2.5rem, 8vw, 5rem); margin: 40px 0; text-transform: uppercase; }
+
+        /* Фільтри */
+        .filters { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 60px; }
         .filter-btn { 
-            padding: 12px 25px; border-radius: 50px; border: 1px solid var(--border); 
-            background: var(--card); color: var(--text); cursor: pointer; 
-            font-weight: 600; transition: var(--transition);
+            padding: 14px 28px; border-radius: 100px; border: 1px solid var(--border); 
+            background: transparent; color: var(--text-secondary); cursor: pointer; 
+            font-weight: 600; text-transform: uppercase; transition: var(--transition);
         }
-        .filter-btn.active, .filter-btn:hover { background: var(--accent); border-color: var(--accent); }
+        .filter-btn.active { background: var(--text); color: var(--bg); border-color: var(--text); }
 
-        .sorting { margin-bottom: 30px; display: flex; gap: 20px; color: var(--text-secondary); font-size: 0.9rem; }
-        .sort-link { color: var(--text); cursor: pointer; text-decoration: underline; }
-
-        /* Сітка проектів */
-        .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 30px; }
+        /* Сітка */
+        .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 40px; }
         .project-card { 
-            background: var(--card); border: 1px solid var(--border); border-radius: 30px; 
-            overflow: hidden; transition: var(--transition); position: relative;
+            background: var(--card); border: 1px solid var(--border); border-radius: 40px; 
+            overflow: hidden; transition: var(--transition); display: flex; flex-direction: column;
         }
         .project-card:hover { transform: translateY(-10px); border-color: var(--accent); }
-        .project-img { height: 250px; width: 100%; background: #111; position: relative; }
-        .project-content { padding: 30px; }
-        .project-tags { display: flex; gap: 10px; margin-bottom: 15px; }
-        .tag { font-size: 0.7rem; padding: 5px 12px; background: rgba(0,113,227,0.1); color: var(--accent); border-radius: 20px; font-weight: 800; }
+        .project-img { height: 260px; width: 100%; background: #111; overflow: hidden; }
+        .project-content { padding: 40px; }
         
-        .project-title { font-family: var(--font-hd); font-size: 1.2rem; margin-bottom: 10px; }
-        .project-desc { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px; }
+        .tag { font-size: 0.65rem; padding: 6px 14px; background: rgba(255,255,255,0.05); color: var(--text-secondary); border-radius: 50px; margin-right: 5px; font-weight: 800; }
+        .project-title { font-family: var(--font-hd); font-size: 1.4rem; margin: 15px 0; }
+        .project-desc { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 25px; min-height: 50px; }
 
-        .project-footer { display: flex; justify-content: space-between; align-items: center; }
-        .like-btn { cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 800; transition: 0.2s; }
-        .like-btn i { font-size: 1.2rem; }
+        .project-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 20px; }
+        .like-btn { cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 800; }
         .like-btn.liked { color: #ff3b30; }
 
         @media (max-width: 600px) { .projects-grid { grid-template-columns: 1fr; } }
@@ -63,67 +77,46 @@
 </head>
 <body>
 
-    <div class="nav-back">
-        <a href="../index.html" class="back-link">
-            <i class="fa-solid fa-arrow-left"></i> BACK TO MAIN
+    <header class="nav-header">
+        <a href="index.html" class="back-link">
+            <i class="fa-solid fa-arrow-left"></i> BACK TO CORE
         </a>
-    </div>
+    </header>
 
-    <h1>ARCHIVE OF LOGIC</h1>
+    <main>
+        <h1>ALL<br>LOGIC</h1>
 
-    <div class="filters">
-        <button class="filter-btn active" onclick="filterProjects('all')">ALL</button>
-        <button class="filter-btn" onclick="filterProjects('uiux')">UI/UX</button>
-        <button class="filter-btn" onclick="filterProjects('python')">PYTHON</button>
-        <button class="filter-btn" onclick="filterProjects('web')">WEB/HTML</button>
-    </div>
-
-    <div class="sorting">
-        Sort by: <span class="sort-link" onclick="sortProjects('new')">Newest</span> | <span class="sort-link" onclick="sortProjects('popular')">Popularity</span>
-    </div>
-
-    <div class="projects-grid" id="projectsGrid">
-        <div class="project-card" data-category="python" data-date="2026-03-20" data-likes="124">
-            <div class="project-img" style="background: linear-gradient(45deg, #0071e3, #000);"></div>
-            <div class="project-content">
-                <div class="project-tags"><span class="tag">AI</span><span class="tag">PYTHON</span></div>
-                <h3 class="project-title">TikTok Stealth Bot</h3>
-                <p class="project-desc">Automation system with human-like behavior logic.</p>
-                <div class="project-footer">
-                    <div class="like-btn" onclick="toggleLike(this)"><i class="fa-regular fa-heart"></i> <span class="count">124</span></div>
-                    <a href="tiktok-bot.html" class="back-link" style="font-size: 0.8rem;">VIEW DETAILS</a>
-                </div>
-            </div>
+        <div class="filters">
+            <button class="filter-btn active" onclick="filterProjects('all', this)">ALL SYSTEMS</button>
+            <button class="filter-btn" onclick="filterProjects('python', this)">PYTHON / AI</button>
+            <button class="filter-btn" onclick="filterProjects('uiux', this)">UI/UX DESIGN</button>
         </div>
 
-        <div class="project-card" data-category="uiux" data-date="2026-03-15" data-likes="89">
-            <div class="project-img" style="background: linear-gradient(45deg, #333, #050505);"></div>
-            <div class="project-content">
-                <div class="project-tags"><span class="tag">DESIGN</span><span class="tag">APPLE</span></div>
-                <h3 class="project-title">Vision OS UI</h3>
-                <p class="project-desc">Spatial interface for next-gen computing.</p>
-                <div class="project-footer">
-                    <div class="like-btn" onclick="toggleLike(this)"><i class="fa-regular fa-heart"></i> <span class="count">89</span></div>
-                    <a href="vision-os.html" class="back-link" style="font-size: 0.8rem;">VIEW DETAILS</a>
+        <div class="projects-grid" id="projectsGrid">
+            
+            <div class="project-card" data-category="python">
+                <div class="project-img" style="background: linear-gradient(45deg, #0071e3, #000);"></div>
+                <div class="project-content">
+                    <div class="project-tags"><span class="tag">Automation</span></div>
+                    <h3 class="project-title">TikTok Stealth Bot</h3>
+                    <p class="project-desc">Human-like interaction engine for social automation.</p>
+                    <div class="project-footer">
+                        <div class="like-btn" onclick="toggleLike(this)"><i class="fa-regular fa-heart"></i> <span class="count">124</span></div>
+                        <a href="projects/tiktok-bot.html" style="color: var(--accent); text-decoration: none; font-weight: 800; font-size: 0.7rem;">DETAILS</a>
+                    </div>
                 </div>
             </div>
+
         </div>
-    </div>
+    </main>
 
     <script>
-        function filterProjects(category) {
+        function filterProjects(category, btn) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
             const cards = document.querySelectorAll('.project-card');
-            const btns = document.querySelectorAll('.filter-btn');
-            
-            btns.forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-
             cards.forEach(card => {
-                if (category === 'all' || card.dataset.category === category) {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = 'none';
-                }
+                card.style.display = (category === 'all' || card.dataset.category === category) ? 'flex' : 'none';
             });
         }
 
@@ -131,7 +124,6 @@
             const icon = btn.querySelector('i');
             const countSpan = btn.querySelector('.count');
             let count = parseInt(countSpan.innerText);
-
             if (icon.classList.contains('fa-regular')) {
                 icon.classList.replace('fa-regular', 'fa-solid');
                 btn.classList.add('liked');
@@ -141,22 +133,6 @@
                 btn.classList.remove('liked');
                 countSpan.innerText = count - 1;
             }
-        }
-
-        function sortProjects(type) {
-            const grid = document.getElementById('projectsGrid');
-            const cards = Array.from(grid.children);
-
-            cards.sort((a, b) => {
-                if (type === 'popular') {
-                    return b.querySelector('.count').innerText - a.querySelector('.count').innerText;
-                } else {
-                    return new Date(b.dataset.date) - new Date(a.dataset.date);
-                }
-            });
-
-            grid.innerHTML = '';
-            cards.forEach(card => grid.appendChild(card));
         }
     </script>
 </body>
