@@ -39,7 +39,7 @@
             overflow-x: hidden;
         }
 
-        /* --- SYNCED HEADER (EXACTLY AS ARCHIVE) --- */
+        /* --- SYNCED HEADER --- */
         header {
             position: fixed;
             top: 0;
@@ -96,7 +96,7 @@
         .control-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
 
         /* --- PROJECT CONTENT --- */
-        .project-container { max-width: 1200px; margin: 0 auto; padding: 40px 8% 100px; }
+        .project-container { max-width: 1200px; margin: 0 auto; padding: 40px 8% 0; }
 
         .project-meta { 
             color: var(--accent); 
@@ -115,20 +115,20 @@
             margin-bottom: 60px; 
         }
 
-        /* ХІРУРГІЧНЕ ЗБІЛЬШЕННЯ ЛИШЕ ПЕРШОГО ФОТО */
+        /* ХІРУРГІЧНЕ ЗБІЛЬШЕННЯ ЛИШЕ ПЕРШОГО ФОТО (+20%) */
         .hero-img-box {
             width: 100%;
             border-radius: 40px;
             margin-bottom: 80px;
             border: 1px solid var(--border);
-            overflow: hidden; /* Щоб фото не вилазило за краї при scale */
+            overflow: hidden;
         }
 
         .hero-img { 
             width: 100%; 
             display: block;
             object-fit: cover;
-            transform: scale(1.2); /* Тільки фото +20% */
+            transform: scale(1.2); 
             transition: var(--transition);
         }
 
@@ -170,7 +170,44 @@
         .gallery { margin-top: 100px; display: grid; gap: 40px; }
         .gallery img { width: 100%; border-radius: 30px; border: 1px solid var(--border); }
 
-        /* --- SYNCED FOOTER (EXACTLY AS ARCHIVE) --- */
+        /* --- COOPERATION BANNER --- */
+        .cooperation-banner {
+            max-width: 1200px;
+            margin: 100px auto 0;
+            padding: 60px 8%;
+            background: var(--card);
+            border-radius: 40px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .cooperation-banner p {
+            font-family: var(--font-hd);
+            font-size: clamp(1rem, 2.5vw, 1.5rem);
+            line-height: 1.4;
+            color: var(--text);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .cooperation-banner .cta-link {
+            display: inline-block;
+            margin-top: 30px;
+            color: var(--accent);
+            text-decoration: none;
+            font-family: var(--font-hd);
+            font-weight: 900;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            border-bottom: 2px solid var(--accent);
+            transition: var(--transition);
+        }
+        .cooperation-banner .cta-link:hover {
+            letter-spacing: 2px;
+            opacity: 0.8;
+        }
+
+        /* --- SYNCED FOOTER --- */
         footer {
             padding: 100px 8%;
             border-top: 1px solid var(--border);
@@ -266,6 +303,7 @@
             .footer-right { text-align: left; }
             .footer-contacts a { font-size: 1.8rem; }
             .hero-img { transform: scale(1.1); }
+            .cooperation-banner { margin: 60px 5% 0; padding: 40px 20px; }
         }
     </style>
 </head>
@@ -290,6 +328,13 @@
 
     <main class="project-container" id="project-render">
         </main>
+
+    <section class="cooperation-banner">
+        <p class="lang-ua">Цікавить співпраця зі мною? Заповнюй та відправляй бриф або подзвони/напиши мені.</p>
+        <p class="lang-en" style="display:none;">Interested in working together? Fill out the brief or call/write to me.</p>
+        <a href="mailto:Destro729@gmail.com" class="cta-link lang-ua">ПОЧАТИ ПРОЕКТ</a>
+        <a href="mailto:Destro729@gmail.com" class="cta-link lang-en" style="display:none;">START PROJECT</a>
+    </section>
 
     <footer>
         <div class="footer-grid">
@@ -343,8 +388,11 @@
             const activeBtn = document.getElementById('btn-' + currentLang);
             if(activeBtn) activeBtn.classList.add('active');
             
-            document.querySelectorAll('.lang-en').forEach(el => el.style.display = currentLang === 'en' ? 'inline' : 'none');
-            document.querySelectorAll('.lang-ua').forEach(el => el.style.display = currentLang === 'ua' ? 'inline' : 'none');
+            document.querySelectorAll('.lang-en').forEach(el => el.style.display = currentLang === 'en' ? 'block' : 'none');
+            document.querySelectorAll('.lang-ua').forEach(el => el.style.display = currentLang === 'ua' ? 'block' : 'none');
+            // Special handling for inline back-link spans
+            document.querySelector('.back-link .lang-en').style.display = currentLang === 'en' ? 'inline' : 'none';
+            document.querySelector('.back-link .lang-ua').style.display = currentLang === 'ua' ? 'inline' : 'none';
 
             if(window.lastData) renderProject(window.lastData);
             
