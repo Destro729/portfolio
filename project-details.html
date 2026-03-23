@@ -108,7 +108,7 @@
         .hero-img-box {
             width: 100%;
             height: auto;
-            max-height: 70vh;
+            max-height: 84vh; /* Збільшено на 20% від 70vh */
             border-radius: 30px;
             margin-bottom: 60px;
             border: 1px solid var(--border);
@@ -149,6 +149,12 @@
             color: var(--text);
             text-transform: uppercase;
             font-family: var(--font-hd);
+            text-decoration: none; /* Для посилань */
+        }
+        .tech-tag:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(0, 113, 227, 0.05);
         }
 
         .main-content { 
@@ -170,7 +176,7 @@
             text-align: center;
             border: 1px solid var(--border);
         }
-        .cooperation-banner p { font-size: 1.2rem; color: var(--text-secondary); }
+        .cooperation-banner p { font-size: 1.2rem; color: var(--text-secondary); line-height: 1.5; }
         .brief-trigger { color: var(--accent); cursor: pointer; font-weight: 800; text-decoration: underline; }
 
         .modal-overlay {
@@ -222,8 +228,8 @@
     <main class="project-container" id="project-render"></main>
 
     <section class="cooperation-banner">
-        <p class="lang-ua">Маєш ідею? <span class="brief-trigger" onclick="openBrief()">ЗАПОВНИ БРИФ</span> і ми почнемо.</p>
-        <p class="lang-en" style="display:none;">Have an idea? <span class="brief-trigger" onclick="openBrief()">FILL THE BRIEF</span> and let's start.</p>
+        <p class="lang-ua">Маєш ідею для проекта та бажання втілити її в життя? <span class="brief-trigger" onclick="openBrief()">Заповнюй бриф</span>, все інше беру на себе.</p>
+        <p class="lang-en" style="display:none;">Have an idea for a project and want to bring it to life? <span class="brief-trigger" onclick="openBrief()">Fill the brief</span>, and I’ll take care of the rest.</p>
     </section>
 
     <footer>
@@ -294,7 +300,6 @@
             window.lastData = data;
             const container = document.getElementById('project-render');
             
-            // ПАРСИНГ МУЛЬТИМОВНОСТІ (розділення через / або пріоритет полів)
             const splitText = (txt) => (txt && txt.includes(' / ')) ? txt.split(' / ') : [txt, txt];
             
             const titleArr = splitText(data.title);
@@ -303,10 +308,8 @@
             const title = currentLang === 'ua' ? titleArr[0] : (titleArr[1] || titleArr[0]);
             const desc = currentLang === 'ua' ? descArr[0] : (descArr[1] || descArr[0]);
             
-            // ПАРСИНГ МЕТА-ТЕГУ
             const meta = data.customMeta || (currentLang === 'ua' ? 'АРТЕФАКТ' : 'ARTIFACT');
             
-            // ЛОГІКА КАТЕГОРІЙ (МАВСИВ З АДМІНКИ 3.8)
             let tags = [];
             if (data.categories && Array.isArray(data.categories)) {
                 tags = data.categories;
@@ -323,12 +326,12 @@
                 <div class="project-grid">
                     <div class="sidebar">
                         <div class="info-block">
-                            <h3>${currentLang === 'ua' ? 'СИСТЕМА' : 'SYSTEM'}</h3>
-                            <p>ANOR CORE v3.8</p>
+                            <h3>${currentLang === 'ua' ? 'ДЕВЕЛОПЕР' : 'DEVELOPER'}</h3>
+                            <p>Maksym Rizun</p>
                         </div>
                         <div class="info-block">
                             <h3>${currentLang === 'ua' ? 'КАТЕГОРІЇ' : 'CATEGORIES'}</h3>
-                            <div>${tags.map(t => `<span class="tech-tag">${t}</span>`).join('')}</div>
+                            <div>${tags.map(t => `<a href="all-projects.html?category=${encodeURIComponent(t)}" class="tech-tag">${t}</a>`).join('')}</div>
                         </div>
                         ${data.githubLink ? `
                         <div class="info-block">
