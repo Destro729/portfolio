@@ -19,29 +19,44 @@
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: var(--bg); color: var(--text); font-family: var(--font-main); padding: 80px 8%; }
-
-        /* Навігація — Змінено шлях назад */
-        .nav-header {
-            position: fixed;
-            top: 0; left: 0; width: 100%;
-            padding: 20px 8%;
-            background: rgba(5, 5, 5, 0.8);
-            backdrop-filter: blur(10px);
-            z-index: 1000;
+        /* LIGHT THEME CLASSS */
+        body.light-theme {
+            --bg: #f5f5f7;
+            --text: #1d1d1f;
+            --text-secondary: #86868b;
+            --card: rgba(0, 0, 0, 0.05);
+            --border: rgba(0, 0, 0, 0.1);
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--bg); color: var(--text); font-family: var(--font-main); padding: 120px 8% 0 8%; transition: background 0.5s; min-height: 100vh; display: flex; flex-direction: column; }
+
+        /* Навігація */
+        .nav-header {
+            position: fixed; top: 0; left: 0; width: 100%;
+            padding: 20px 8%; background: rgba(var(--bg), 0.8);
+            backdrop-filter: blur(20px); z-index: 1000;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .nav-controls { display: flex; gap: 20px; align-items: center; }
 
         .back-link { 
-            color: var(--text); 
-            text-decoration: none; 
-            font-weight: 800; 
-            font-family: var(--font-hd); 
-            font-size: 0.8rem;
+            color: var(--text); text-decoration: none; font-weight: 800; 
+            font-family: var(--font-hd); font-size: 0.8rem;
             display: flex; align-items: center; gap: 10px;
             transition: var(--transition);
+            text-transform: uppercase;
         }
         .back-link:hover { color: var(--accent); transform: translateX(-5px); }
+        .back-link:active { transform: scale(0.95) translateX(-5px); }
+
+        .control-btn { 
+            background: none; border: 1px solid var(--border); color: var(--text); 
+            padding: 8px 15px; border-radius: 50px; cursor: pointer; 
+            font-family: var(--font-hd); font-size: 0.6rem; transition: 0.3s;
+        }
+        .control-btn:hover { background: var(--text); color: var(--bg); }
 
         h1 { font-family: var(--font-hd); font-size: clamp(2.5rem, 8vw, 5rem); margin: 40px 0; text-transform: uppercase; }
 
@@ -55,7 +70,7 @@
         .filter-btn.active { background: var(--text); color: var(--bg); border-color: var(--text); }
 
         /* Сітка */
-        .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 40px; }
+        .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 40px; flex-grow: 1; }
         .project-card { 
             background: var(--card); border: 1px solid var(--border); border-radius: 40px; 
             overflow: hidden; transition: var(--transition); display: flex; flex-direction: column;
@@ -72,28 +87,35 @@
         .like-btn { cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 800; }
         .like-btn.liked { color: #ff3b30; }
 
-        @media (max-width: 600px) { .projects-grid { grid-template-columns: 1fr; } }
+        /* Футер */
+        footer { padding: 80px 0 40px 0; border-top: 1px solid var(--border); margin-top: 100px; display: flex; justify-content: space-between; color: var(--text-secondary); font-size: 0.8rem; font-weight: 600; }
+
+        @media (max-width: 600px) { .projects-grid { grid-template-columns: 1fr; } .nav-header { padding: 20px 5%; } }
     </style>
 </head>
 <body>
 
     <header class="nav-header">
         <a href="index.html" class="back-link">
-            <i class="fa-solid fa-arrow-left"></i> BACK TO CORE
+            <i class="fa-solid fa-arrow-left"></i> <span class="lang-en">BACK TO CORE</span><span class="lang-ua" style="display:none;">ДО ГОЛОВНОЇ</span>
         </a>
+        <div class="nav-controls">
+            <button class="control-btn" onclick="toggleTheme()"><i class="fa-solid fa-circle-half-stroke"></i></button>
+            <button class="control-btn" onclick="toggleLang()">UA / EN</button>
+        </div>
     </header>
 
     <main>
-        <h1>ALL<br>LOGIC</h1>
+        <h1 class="lang-en">ALL<br>LOGIC</h1>
+        <h1 class="lang-ua" style="display:none;">ВСЯ<br>ЛОГІКА</h1>
 
         <div class="filters">
-            <button class="filter-btn active" onclick="filterProjects('all', this)">ALL SYSTEMS</button>
+            <button class="filter-btn active" onclick="filterProjects('all', this)">ALL</button>
             <button class="filter-btn" onclick="filterProjects('python', this)">PYTHON / AI</button>
-            <button class="filter-btn" onclick="filterProjects('uiux', this)">UI/UX DESIGN</button>
+            <button class="filter-btn" onclick="filterProjects('uiux', this)">UI/UX</button>
         </div>
 
         <div class="projects-grid" id="projectsGrid">
-            
             <div class="project-card" data-category="python">
                 <div class="project-img" style="background: linear-gradient(45deg, #0071e3, #000);"></div>
                 <div class="project-content">
@@ -106,11 +128,24 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </main>
 
+    <footer>
+        <div>© 2026 MAKSYM RIZUN</div>
+        <div>VERSAILLE ANOR ARCHITECTURE</div>
+    </footer>
+
     <script>
+        function toggleTheme() { document.body.classList.toggle('light-theme'); }
+        
+        function toggleLang() {
+            const ens = document.querySelectorAll('.lang-en');
+            const uas = document.querySelectorAll('.lang-ua');
+            ens.forEach(el => el.style.display = el.style.display === 'none' ? 'block' : 'none');
+            uas.forEach(el => el.style.display = el.style.display === 'none' ? 'block' : 'none');
+        }
+
         function filterProjects(category, btn) {
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
