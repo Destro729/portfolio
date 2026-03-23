@@ -59,7 +59,10 @@
             position: absolute; top: 2px; left: 2px; transition: var(--transition);
         }
         [data-theme="light"] .theme-switch .toggle { transform: translateX(24px); background: var(--accent); }
-        .lang-switch { cursor: pointer; font-weight: 800; font-size: 0.8rem; color: var(--accent); transition: var(--transition); }
+        .lang-switch { 
+            cursor: pointer; font-weight: 800; font-size: 0.8rem; color: var(--accent); transition: var(--transition); 
+            min-width: 100px; text-align: right;
+        }
         .lang-switch:hover { filter: brightness(1.2); letter-spacing: 1px; }
 
         section { padding: 100px 8%; }
@@ -105,6 +108,7 @@
             padding: 20px 50px; border: 2px solid var(--accent); color: var(--accent);
             border-radius: 100px; font-family: var(--font-hd); font-weight: 700;
             text-decoration: none; display: inline-block; transition: var(--transition);
+            min-width: 280px;
         }
         .btn-outline:hover { background: var(--accent); color: #fff; transform: scale(1.05); }
 
@@ -134,6 +138,7 @@
             letter-spacing: 2px; font-size: 0.9rem; text-decoration: none; z-index: 2000;
             box-shadow: 0 15px 35px rgba(0, 113, 227, 0.4); transition: var(--transition);
             border: none; cursor: pointer;
+            min-width: 200px;
         }
         .fab:hover { 
             transform: scale(1.05) translateY(-5px); 
@@ -339,9 +344,9 @@
                     <a href="https://wa.me/380932097079" target="_blank" title="WhatsApp" id="f-wa"><i class="fa-brands fa-whatsapp"></i></a>
                     <a href="https://t.me/your_tg_username" target="_blank" title="Telegram" id="f-tg"><i class="fa-brands fa-telegram"></i></a>
                     <a href="https://github.com/beyond-dl" target="_blank" title="GitHub" id="f-gh"><i class="fa-brands fa-github"></i></a>
-                    <a href="#" title="Discord"><i class="fa-brands fa-discord"></i></a>
-                    <a href="#" title="Behance"><i class="fa-brands fa-behance"></i></a>
-                    <a href="#" title="Fiverr"><i class="fa-solid fa-f"></i></a>
+                    <a href="#" title="Discord" id="f-ds"><i class="fa-brands fa-discord"></i></a>
+                    <a href="#" title="Behance" id="f-bh"><i class="fa-brands fa-behance"></i></a>
+                    <a href="#" title="Fiverr" id="f-fv"><i class="fa-solid fa-f"></i></a>
                 </div>
             </div>
             <div style="text-align: right;">
@@ -389,7 +394,7 @@
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.app";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDwQpDnT4_o1fiVDKuWI7VAYeal9nh6dRQ",
@@ -417,12 +422,16 @@
                 const card = document.createElement('div');
                 card.className = 'project-card';
                 card.onclick = () => { window.location.href = `project-details.html?id=${key}`; };
+                
+                // Виправлена логіка картинок: перевіряємо mainImage або image
+                const projectImg = p.mainImage || p.image || 'img/default.jpg';
+                
                 card.innerHTML = `
-                    <img src="${p.image || 'img/default.jpg'}" alt="${p.title}">
+                    <img src="${projectImg}" alt="${p.title || 'Project'}">
                     <div class="project-info">
-                        <span class="project-tag">${p.category}</span>
-                        <h3>${p.title}</h3>
-                        <p>${p.desc ? p.desc.substring(0, 60) + '...' : ''}</p>
+                        <span class="project-tag">${p.category || 'Logic'}</span>
+                        <h3>${p.title || 'Untitled'}</h3>
+                        <p>${p.shortDesc ? p.shortDesc.substring(0, 60) + '...' : (p.desc ? p.desc.substring(0, 60) + '...' : '')}</p>
                     </div>
                 `;
                 
@@ -457,6 +466,9 @@
             if(f.tg) document.getElementById('f-tg').href = f.tg;
             if(f.wa) document.getElementById('f-wa').href = f.wa;
             if(f.gh) document.getElementById('f-gh').href = f.gh;
+            if(f.ds) document.getElementById('f-ds').href = f.ds;
+            if(f.bh) document.getElementById('f-bh').href = f.bh;
+            if(f.fv) document.getElementById('f-fv').href = f.fv;
         });
     </script>
 
@@ -508,7 +520,6 @@
 
         document.getElementById('briefForm').onsubmit = (e) => {
             e.preventDefault();
-            // Тут можна додати логіку EmailJS sendForm
             closeModal();
             const toast = document.getElementById('toast');
             toast.classList.add('show');
