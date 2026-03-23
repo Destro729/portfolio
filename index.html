@@ -92,8 +92,14 @@
             height: 480px; border-radius: 40px; overflow: hidden; position: relative;
             background: #111; cursor: pointer; transform-style: preserve-3d; transition: transform 0.1s;
         }
+        /* Стиль для зображення всередині картки */
+        .project-card img { width: 100%; height: 100%; object-fit: cover; transition: var(--transition); }
+        .project-card:hover img { transform: scale(1.1); }
+        
         .project-info { position: absolute; bottom: 0; padding: 40px; background: linear-gradient(transparent, rgba(0,0,0,0.9)); width: 100%; color: #fff; }
         .project-info h3 { font-family: var(--font-hd); font-size: 1.5rem; font-weight: 700; }
+        .project-info p { font-size: 0.9rem; opacity: 0.8; margin-top: 5px; }
+        .project-tag { display: inline-block; padding: 5px 12px; background: var(--accent); border-radius: 20px; font-size: 0.7rem; font-family: var(--font-hd); margin-bottom: 10px; text-transform: uppercase; }
 
         .more-projects-container { text-align: center; margin-top: 60px; }
         .btn-outline {
@@ -185,7 +191,6 @@
         }
         form button:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0, 113, 227, 0.3); }
 
-        /* FIX TOAST MOBILE: hide behind screen correctly */
         #toast { position: fixed; top: -150px; left: 50%; transform: translateX(-50%); background: #fff; color: #000; padding: 18px 40px; border-radius: 100px; font-weight: 800; z-index: 4000; transition: 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28); font-family: var(--font-main); white-space: nowrap; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         #toast.show { top: 40px; }
 
@@ -208,7 +213,6 @@
             .bento, .portfolio-grid { grid-template-columns: 1fr; } 
             .wide { grid-column: span 1; } 
             .hero { padding-top: 200px; } 
-            /* FIX MOBILE FOOTER */
             .footer-grid { flex-direction: column; text-align: center; align-items: center; }
             .footer-grid div { text-align: center !important; }
             .social-icons { justify-content: center; }
@@ -286,40 +290,10 @@
     <section id="portfolio">
         <h2 class="about-heading lang-en">Portfolio</h2>
         <h2 class="about-heading lang-ua">Портфоліо</h2>
-        <div class="portfolio-grid">
-            <div class="project-card" onclick="window.location.href='projects/tiktok-bot.html'">
-                <div style="background: linear-gradient(45deg, #0071e3, #000); height: 100%;"></div>
-                <div class="project-info">
-                    <h3>TikTok Stealth Bot</h3>
-                    <p class="lang-en">Python AI Logic</p>
-                    <p class="lang-ua">AI Логіка на Python</p>
-                </div>
+        
+        <div class="portfolio-grid" id="projects-grid">
             </div>
-            <div class="project-card" onclick="window.location.href='projects/vision-os.html'">
-                <div style="background: linear-gradient(45deg, #333, #050505); height: 100%;"></div>
-                <div class="project-info">
-                    <h3>Vision OS UI</h3>
-                    <p class="lang-en">System Design</p>
-                    <p class="lang-ua">Системний Дизайн</p>
-                </div>
-            </div>
-            <div class="project-card" onclick="window.location.href='projects/fintech-app.html'">
-                <div style="background: linear-gradient(45deg, #f2994a, #f2c94c); height: 100%;"></div>
-                <div class="project-info">
-                    <h3>FinTech App</h3>
-                    <p class="lang-en">Mobile Interface</p>
-                    <p class="lang-ua">Мобільний Інтерфейс</p>
-                </div>
-            </div>
-            <div class="project-card" onclick="window.location.href='projects/ai-dashboard.html'">
-                <div style="background: linear-gradient(45deg, #444, #111); height: 100%;"></div>
-                <div class="project-info">
-                    <h3>AI Data Dashboard</h3>
-                    <p class="lang-en">Internal Tooling</p>
-                    <p class="lang-ua">Внутрішній інструментарій</p>
-                </div>
-            </div>
-        </div>
+
         <div class="more-projects-container">
             <a href="all-projects.html" class="btn-outline lang-en">SEE ALL PROJECTS</a>
             <a href="all-projects.html" class="btn-outline lang-ua">БІЛЬШЕ ПРОЕКТІВ</a>
@@ -413,9 +387,63 @@
     </div>
 
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDwQpDnT4_o1fiVDKuWI7VAYeal9nh6dRQ",
+            authDomain: "anor-core-2026.firebaseapp.com",
+            databaseURL: "https://anor-core-2026-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "anor-core-2026",
+            storageBucket: "anor-core-2026.firebasestorage.app",
+            messagingSenderId: "787691904559",
+            appId: "1:787691904559:web:845da19d72ceb9ec50b0da"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const grid = document.getElementById('projects-grid');
+
+        onValue(ref(db, 'projects'), (snap) => {
+            const data = snap.val();
+            if (!data) return;
+            grid.innerHTML = "";
+            const keys = Object.keys(data).reverse().slice(0, 4); // Беремо останні 4 проекти для головної
+            
+            keys.forEach(key => {
+                const p = data[key];
+                const card = document.createElement('div');
+                card.className = 'project-card';
+                card.innerHTML = `
+                    <img src="${p.image || 'img/default.jpg'}" alt="${p.title}">
+                    <div class="project-info">
+                        <span class="project-tag">${p.category}</span>
+                        <h3>${p.title}</h3>
+                        <p>${p.desc.substring(0, 60)}...</p>
+                    </div>
+                `;
+                
+                // Додаємо анімацію нахилу для нових карток
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = (e.clientX - rect.left) / rect.width - 0.5;
+                    const y = (e.clientY - rect.top) / rect.height - 0.5;
+                    card.style.transform = `perspective(1000px) rotateY(${x * 12}deg) rotateX(${y * -12}deg) scale3d(1.02, 1.02, 1.02)`;
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = `perspective(1000px) rotateY(0) rotateX(0) scale3d(1, 1, 1)`;
+                });
+                
+                grid.appendChild(card);
+            });
+        });
+    </script>
+
     <script>
         (function() {
-            emailjs.init("YOUR_PUBLIC_KEY"); // Твій Public Key від EmailJS
+            emailjs.init("YOUR_PUBLIC_KEY");
         })();
 
         const glow = document.getElementById('glow');
@@ -432,13 +460,10 @@
         function toggleLang() { 
             document.body.classList.toggle('ua'); 
             const isUa = document.body.classList.contains('ua');
-            
             document.getElementById('nameInput').placeholder = isUa ? "Ваше ім'я" : "Your Name";
             document.getElementById('contactInput').placeholder = isUa ? "Контакти (TG / Email)" : "Contact Details (TG / Email)";
             document.getElementById('descInput').placeholder = isUa ? "Опишіть завдання (макс 300 симв)..." : "Describe your task (max 300 symbols)...";
-            
             document.getElementById('toast').innerText = isUa ? "✅ УСПІШНО! БРИФ ВІДПРАВЛЕНО." : "✅ SUCCESS! BRIEF SENT.";
-            
             if (!document.getElementById('fileInput').files.length) {
                 document.getElementById('fileNameDisplay').innerText = "Attach file (optional)";
                 document.getElementById('fileNameDisplayUa').innerText = "Додати файл (опціонально)";
@@ -456,25 +481,8 @@
         function openModal() { document.getElementById('briefModal').style.display = 'flex'; }
         function closeModal() { document.getElementById('briefModal').style.display = 'none'; }
 
-        document.querySelectorAll('.project-card').forEach(card => {
-            card.addEventListener('mousemove', (e) => {
-                const rect = card.getBoundingClientRect();
-                const x = (e.clientX - rect.left) / rect.width - 0.5;
-                const y = (e.clientY - rect.top) / rect.height - 0.5;
-                card.style.transform = `perspective(1000px) rotateY(${x * 12}deg) rotateX(${y * -12}deg) scale3d(1.02, 1.02, 1.02)`;
-            });
-            card.addEventListener('mouseleave', () => {
-                card.style.transform = `perspective(1000px) rotateY(0) rotateX(0) scale3d(1, 1, 1)`;
-            });
-        });
-
         document.getElementById('briefForm').onsubmit = (e) => {
             e.preventDefault();
-            
-            // Логіка відправки через EmailJS (підключи свій сервіс та шаблон)
-            // emailjs.sendForm('service_id', 'template_id', e.target)
-            //     .then(() => { console.log('SUCCESS!'); }, (error) => { console.log('FAILED...', error); });
-
             closeModal();
             const toast = document.getElementById('toast');
             toast.classList.add('show');
@@ -487,4 +495,3 @@
     </script>
 </body>
 </html>
-
