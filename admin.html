@@ -98,7 +98,6 @@
             background: rgba(255, 255, 255, 0.05);
         }
 
-        /* ВИПРАВЛЕНО: СИМЕТРІЯ ТА ЦЕНТРУВАННЯ */
         .main-content {
             margin-left: 280px;
             flex-grow: 1;
@@ -133,7 +132,7 @@
             gap: 25px;
         }
 
-        .form-group { margin-bottom: 25px; }
+        .form-group { margin-bottom: 25px; position: relative; }
         .full-width { grid-column: span 2; }
 
         label {
@@ -156,10 +155,66 @@
             font-family: inherit;
         }
 
-        /* МУЛЬТИТЕГ: Висота для зручності */
-        select[multiple] { height: 100px; padding: 10px; }
-
         input:focus { border-color: var(--accent); }
+
+        /* НОВІ СТИЛІ ДЛЯ ТЕГІВ */
+        .tags-custom-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 10px;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            min-height: 56px;
+            cursor: pointer;
+        }
+
+        .tag-pill {
+            background: var(--accent);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+        }
+
+        .tag-pill i { cursor: pointer; font-size: 0.7rem; }
+
+        .tags-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            margin-top: 5px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 100;
+            display: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .tags-dropdown.active { display: block; }
+
+        .tag-option {
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tag-option:hover { background: rgba(255,255,255,0.05); }
+
+        .tag-option i.fa-plus { color: var(--success); }
+        .tag-option i.fa-xmark { color: var(--danger); }
 
         .btn {
             background: var(--accent);
@@ -234,7 +289,6 @@
             gap: 15px;
         }
 
-        /* Адаптивність */
         @media (max-width: 1024px) {
             .sidebar { width: 80px; padding: 20px 10px; }
             .nav-label, .nav-item span, .logo { display: none; }
@@ -301,8 +355,12 @@
                     </div>
 
                     <div class="form-group">
-                        <label data-t="l_cat">Категорії (Фільтри - CTRL для вибору)</label>
-                        <select id="p-cat" multiple></select>
+                        <label data-t="l_cat">Категорії (Фільтри)</label>
+                        <div class="tags-custom-container" id="tags-display" onclick="toggleTagsDropdown(event)">
+                            <span style="color: var(--text-secondary); font-size: 0.9rem;">Оберіть категорії...</span>
+                        </div>
+                        <div class="tags-dropdown" id="tags-dropdown">
+                            </div>
                     </div>
 
                     <div class="form-group full-width">
@@ -404,6 +462,8 @@
 
         let editingProjectId = null;
         let currentLang = 'ua';
+        let selectedCategories = [];
+        let allCategories = [];
 
         const translations = {
             ua: {
@@ -449,6 +509,58 @@
             document.getElementById('theme-dark').classList.toggle('active', theme === 'dark');
         };
 
+        // --- TAGS UI LOGIC ---
+        window.toggleTagsDropdown = (e) => {
+            e.stopPropagation();
+            document.getElementById('tags-dropdown').classList.toggle('active');
+        };
+
+        document.addEventListener('click', () => {
+            document.getElementById('tags-dropdown').classList.remove('active');
+        });
+
+        function renderTagsUI() {
+            const display = document.getElementById('tags-display');
+            const dropdown = document.getElementById('tags-dropdown');
+            
+            // Render Selected
+            if (selectedCategories.length === 0) {
+                display.innerHTML = '<span style="color: var(--text-secondary); font-size: 0.9rem;">Оберіть категорії...</span>';
+            } else {
+                display.innerHTML = selectedCategories.map(cat => `
+                    <span class="tag-pill">
+                        ${cat} 
+                        <i class="fa-solid fa-xmark" onclick="event.stopPropagation(); removeTag('${cat}')"></i>
+                    </span>
+                `).join('');
+            }
+
+            // Render Dropdown
+            dropdown.innerHTML = allCategories.map(cat => {
+                const isSelected = selectedCategories.includes(cat.name);
+                return `
+                    <div class="tag-option" onclick="event.stopPropagation(); toggleTag('${cat.name}')">
+                        <span>${cat.name}</span>
+                        <i class="fa-solid ${isSelected ? 'fa-xmark' : 'fa-plus'}"></i>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.toggleTag = (name) => {
+            if (selectedCategories.includes(name)) {
+                selectedCategories = selectedCategories.filter(c => c !== name);
+            } else {
+                selectedCategories.push(name);
+            }
+            renderTagsUI();
+        };
+
+        window.removeTag = (name) => {
+            selectedCategories = selectedCategories.filter(c => c !== name);
+            renderTagsUI();
+        };
+
         // --- CATEGORIES ---
         window.addCategory = () => {
             const name = document.getElementById('new-cat-name').value;
@@ -457,24 +569,23 @@
         };
 
         onValue(ref(db, 'categories'), (snap) => {
-            const list = document.getElementById('cat-list'), select = document.getElementById('p-cat');
-            list.innerHTML = ""; select.innerHTML = "";
+            const list = document.getElementById('cat-list');
+            list.innerHTML = "";
             const data = snap.val();
+            allCategories = [];
             for(let id in data) {
+                allCategories.push({id, name: data[id].name});
                 list.innerHTML += `<div class="project-item"><span>${data[id].name}</span><button class="btn-delete" onclick="deleteItem('categories/${id}')"><i class="fa-solid fa-trash"></i></button></div>`;
-                select.innerHTML += `<option value="${data[id].name}">${data[id].name}</option>`;
             }
+            renderTagsUI();
         });
 
         // --- PROJECTS LOGIC ---
         window.saveProject = () => {
-            // МУЛЬТИ-ВИБІР: отримуємо масив
-            const selectedCats = Array.from(document.getElementById('p-cat').selectedOptions).map(o => o.value);
-            
             const data = {
                 title: document.getElementById('p-title').value,
                 customMeta: document.getElementById('p-meta').value,
-                categories: selectedCats, // ТЕПЕР МАСИВ
+                categories: selectedCategories, 
                 tags: document.getElementById('p-tags').value,
                 shortDesc: document.getElementById('p-short').value,
                 description: document.getElementById('p-desc').value,
@@ -508,12 +619,8 @@
                 document.getElementById('p-title').value = d.title || "";
                 document.getElementById('p-meta').value = d.customMeta || "";
                 
-                // Встановлюємо мульти-вибір
-                const catSelect = document.getElementById('p-cat');
-                const cats = d.categories || (d.category ? [d.category] : []);
-                Array.from(catSelect.options).forEach(opt => {
-                    opt.selected = cats.includes(opt.value);
-                });
+                selectedCategories = d.categories || (d.category ? [d.category] : []);
+                renderTagsUI();
 
                 document.getElementById('p-tags').value = d.tags || "";
                 document.getElementById('p-short').value = d.shortDesc || "";
@@ -539,6 +646,8 @@
         function clearForm() {
             document.querySelectorAll('#sec-projects input, #sec-projects textarea').forEach(i => i.value = "");
             document.getElementById('p-on-main').checked = false;
+            selectedCategories = [];
+            renderTagsUI();
         }
 
         onValue(ref(db, 'projects'), (snap) => {
