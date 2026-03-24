@@ -1,99 +1,62 @@
 /* АРХІТЕКТУРА СВІТЛОЇ ЛОГІКИ: VERSAL_TRANSLATOR_CORE
-   Версія: 1.0.1 (Чистий JS для репозиторію)
+   Версія: 4.0.0 (Static Native Switching)
    Автор: Версаль Анор (для Версо)
 */
 
-function googleTranslateElementInit() {
-    new google.translate.TranslateElement({
-        pageLanguage: 'uk',
-        includedLanguages: 'uk,en',
-        layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
-        autoDisplay: false
-    }, 'google_translate_element');
-}
-
 (function() {
-    // Створюємо необхідний контейнер динамічно, щоб не псувати HTML-файли
-    const hiddenDiv = document.createElement('div');
-    hiddenDiv.id = 'google_translate_element';
-    hiddenDiv.style.display = 'none';
-    document.body.appendChild(hiddenDiv);
-
-    // Додаємо скрипт Google API
-    const gtScript = document.createElement('script');
-    gtScript.type = 'text/javascript';
-    gtScript.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-    document.head.appendChild(gtScript);
-
-    // Додаємо стилі для приховування зайвих елементів Google
-    const style = document.createElement('style');
-    style.innerHTML = `
-        body { top: 0 !important; }
-        .skiptranslate, .goog-te-banner-frame, .goog-te-gadget-icon { display: none !important; }
-        .goog-te-gadget { color: transparent !important; }
-        #goog-gt-tt, .goog-te-balloon-frame { display: none !important; }
-        .goog-text-highlight { background: transparent !important; box-shadow: none !important; }
-    `;
-    document.head.appendChild(style);
-
     const VersalTranslator = {
-        currentLang: localStorage.getItem('versal_lang') || 'uk',
+        currentLang: localStorage.getItem('anor_lang') || 'en', // Default to English as requested
 
-        setLanguage: function(langCode) {
-            const select = document.querySelector('.goog-te-combo');
-            if (select) {
-                select.value = langCode;
-                select.dispatchEvent(new Event('change'));
-                localStorage.setItem('versal_lang', langCode);
-                this.currentLang = langCode;
-                // Примусово оновлюємо DOM для перекладача
-                document.body.classList.toggle('ua', langCode === 'uk');
+        init: function() {
+            // Встановлюємо початковий стан
+            this.applyLang(this.currentLang);
+            
+            // Експортуємо глобальну функцію для кнопок
+            window.toggleLang = () => {
+                const newLang = this.currentLang === 'ua' ? 'en' : 'ua';
+                this.setLanguage(newLang);
+            };
+        },
+
+        setLanguage: function(lang) {
+            this.currentLang = lang;
+            localStorage.setItem('anor_lang', lang);
+            this.applyLang(lang);
+            
+            // Відправляємо подію для інших скриптів (щоб перемалювати проекти)
+            window.dispatchEvent(new CustomEvent('langChanged', { detail: { lang } }));
+        },
+
+        applyLang: function(lang) {
+            // Перемикання класів на body
+            if (lang === 'ua') {
+                document.body.classList.add('ua');
+                document.body.classList.remove('en');
+                // Показати/сховати елементи з класами lang-ua/lang-en
+                document.querySelectorAll('.lang-ua').forEach(el => el.style.display = 'block'); // або inline-block в залежності від CSS, але block безпечніше для тексту
+                document.querySelectorAll('.lang-en').forEach(el => el.style.display = 'none');
             } else {
-                // Якщо Google ще не завантажився, чекаємо
-                let attempts = 0;
-                const interval = setInterval(() => {
-                    const s = document.querySelector('.goog-te-combo');
-                    if(s) {
-                        s.value = langCode;
-                        s.dispatchEvent(new Event('change'));
-                        localStorage.setItem('versal_lang', langCode);
-                        this.currentLang = langCode;
-                        document.body.classList.toggle('ua', langCode === 'uk');
-                        clearInterval(interval);
-                    }
-                    attempts++;
-                    if(attempts > 20) clearInterval(interval); // Timeout 10s
-                }, 500);
+                document.body.classList.add('en');
+                document.body.classList.remove('ua');
+                document.querySelectorAll('.lang-en').forEach(el => el.style.display = 'block');
+                document.querySelectorAll('.lang-ua').forEach(el => el.style.display = 'none');
             }
-        },
-
-        bindUI: function() {
-            document.addEventListener('click', (e) => {
-                const btn = e.target.closest('[data-lang]');
-                if (btn) {
-                    e.preventDefault();
-                    const lang = btn.getAttribute('data-lang');
-                    this.setLanguage(lang);
-                }
+            
+            // Специфічні фікси для display властивостей, якщо вони inline
+            document.querySelectorAll('span.lang-ua, a.lang-ua').forEach(el => {
+                if(lang === 'ua') el.style.display = 'inline-block';
             });
-        },
-
-        applySavedLang: function() {
-            if (this.currentLang !== 'uk') {
-                this.setLanguage(this.currentLang);
-            }
+            document.querySelectorAll('span.lang-en, a.lang-en').forEach(el => {
+                if(lang === 'en') el.style.display = 'inline-block';
+            });
         }
     };
 
-    window.addEventListener('load', () => {
-        VersalTranslator.bindUI();
-        setTimeout(() => VersalTranslator.applySavedLang(), 1200);
+    // Запускаємо при завантаженні
+    document.addEventListener('DOMContentLoaded', () => {
+        VersalTranslator.init();
     });
 
+    // Експорт
     window.VersalTranslator = VersalTranslator;
 })();
-
-// Допоміжна функція для виводу символів (Заповідь 5)
-function ChrW(code) {
-    return String.fromCharCode(code);
-}

@@ -253,27 +253,29 @@
         .cooperation-banner p { font-size: 1.2rem; color: var(--text-secondary); line-height: 1.5; }
         .brief-trigger { color: var(--accent); cursor: pointer; font-weight: 800; text-decoration: underline; }
 
-        footer { padding: 100px 8%; border-top: 1px solid var(--border); margin-top: 100px; }
+        footer { padding: 100px 8%; border-top: 1px solid var(--border); }
         .footer-grid { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 40px; }
         .footer-contacts { display: flex; flex-direction: column; gap: 10px; }
-        .footer-contacts a { 
-            font-family: var(--font-hd); font-size: clamp(1.2rem, 3vw, 2rem); 
-            color: var(--text); text-decoration: none; font-weight: 900; transition: var(--transition); 
-        }
+        .footer-contacts a { font-family: var(--font-hd); font-size: clamp(1.2rem, 3vw, 2rem); color: var(--text); text-decoration: none; font-weight: 900; transition: var(--transition); }
         .footer-contacts a:hover { color: var(--accent); }
         .footer-email { color: var(--text-secondary); text-decoration: none; font-weight: 600; font-size: 1.1rem; }
         
         .social-icons { display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
-        .social-icons a { width: 50px; height: 50px; background: var(--card); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; color: var(--text); border: 1px solid var(--border); transition: 0.3s; text-decoration: none; }
+        .social-icons a { width: 50px; height: 50px; background: var(--card); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; color: var(--text); border: 1px solid var(--border); transition: 0.3s; }
         .social-icons a:hover { background: var(--accent); color: #fff; transform: translateY(-5px); border-color: var(--accent); }
 
         /* Lang styles for Google Translate script compatibility */
+        /* Базовий стан - англійська відображається, українська ні (якщо body не має класу .ua) */
+        /* Але скрипт додасть .ua або .en */
+        body.ua .lang-en { display: none !important; }
+        body.ua .lang-ua { display: inline-block !important; }
         .lang-ua { display: none; }
         .lang-en { display: inline-block; }
 
         @media (max-width: 900px) {
             .project-grid { grid-template-columns: 1fr; gap: 40px; }
             .footer-grid { flex-direction: column; text-align: center; align-items: center; }
+            .footer-grid div { text-align: center !important; }
             .social-icons { justify-content: center; }
         }
     </style>
@@ -290,7 +292,7 @@
         </a>
         <div class="nav-controls">
             <button class="control-btn" onclick="toggleTheme()"><i class="fa-solid fa-circle-half-stroke"></i></button>
-            <button class="control-btn" onclick="toggleLangTranslator()" style="min-width: 80px;">UA / EN</button>
+            <button class="control-btn" onclick="toggleLang()" style="min-width: 80px;">UA / EN</button>
         </div>
     </header>
 
@@ -301,7 +303,7 @@
         <p class="lang-en" style="display:none;">Have an idea for a project and want to bring it to life? <span class="brief-trigger" onclick="openModal()">Fill the brief</span>, and I’ll take care of the rest.</p>
     </section>
 
-    <footer>
+    <footer id="footer" style="margin-top: 100px;">
         <div class="footer-grid">
             <div class="footer-contacts">
                 <a href="tel:+380932097079" id="f-phone-link">+380 93 209 70 79</a>
@@ -367,23 +369,12 @@
         };
         if(localStorage.getItem('anor_theme') === 'light') document.body.classList.add('light-theme');
 
-        // Розумний перекладач
-        window.toggleLangTranslator = () => {
-            // Отримуємо актуальний стан прямо з селектора Google (якщо є) або localStorage
-            let current = localStorage.getItem('versal_lang') || 'uk';
-            const combo = document.querySelector('.goog-te-combo');
-            if(combo) current = combo.value;
-
-            const next = current === 'uk' ? 'en' : 'uk';
-            VersalTranslator.setLanguage(next);
-            
-            currentLang = next === 'en' ? 'en' : 'ua';
-            setTimeout(() => {
-                updateUI();
-                toggleLangPlaceholders(currentLang === 'ua');
-                if(window.lastData) renderProject(window.lastData);
-            }, 100);
-        };
+        // Слухаємо зміну мови
+        window.addEventListener('langChanged', (e) => {
+            currentLang = e.detail.lang;
+            updateUI();
+            if(window.lastData) renderProject(window.lastData);
+        });
 
         // Логіка модалки
         window.openModal = () => document.getElementById('briefModal').style.display = 'flex';
@@ -406,14 +397,9 @@
             e.target.reset();
         };
 
-        function toggleLangPlaceholders(isUa) { 
-            document.getElementById('nameInput').placeholder = isUa ? "Ваше ім'я" : "Your Name";
-            document.getElementById('contactInput').placeholder = isUa ? "Контакти (TG / Email)" : "Contact Details (TG / Email)";
-            document.getElementById('descInput').placeholder = isUa ? "Опишіть завдання (макс 300 симв)..." : "Describe your task (max 300 symbols)...";
-            document.getElementById('toast').innerText = isUa ? "✅ УСПІШНО! БРИФ ВІДПРАВЛЕНО." : "✅ SUCCESS! BRIEF SENT.";
-        }
-
         function updateUI() {
+            currentLang = localStorage.getItem('anor_lang') || 'en';
+            
             document.querySelectorAll('.lang-en').forEach(el => el.style.display = currentLang === 'en' ? 'inline-block' : 'none');
             document.querySelectorAll('.lang-ua').forEach(el => el.style.display = currentLang === 'ua' ? 'inline-block' : 'none');
         }
@@ -422,13 +408,13 @@
             window.lastData = data;
             const container = document.getElementById('project-render');
             
-            const splitText = (txt) => (txt && txt.includes(' / ')) ? txt.split(' / ') : [txt, txt];
-            
-            const titleArr = splitText(data.title);
-            const descArr = splitText(data.description);
-            
-            const title = currentLang === 'ua' ? titleArr[0] : (titleArr[1] || titleArr[0]);
-            const desc = currentLang === 'ua' ? descArr[0] : (descArr[1] || descArr[0]);
+            // STATIC TRANSLATION LOGIC
+            let title = currentLang === 'ua' ? data.titleUa : data.titleEn;
+            let desc = currentLang === 'ua' ? data.descUa : data.descEn;
+
+            // Fallback for old data
+            if (!title) title = data.title ? (data.title.includes(' / ') ? data.title.split(' / ')[currentLang === 'ua' ? 0 : 1] : data.title) : 'Untitled';
+            if (!desc) desc = data.description ? (data.description.includes(' / ') ? data.description.split(' / ')[currentLang === 'ua' ? 0 : 1] : data.description) : '';
             
             const meta = data.customMeta || (currentLang === 'ua' ? 'АРТЕФАКТ' : 'ARTIFACT');
             
@@ -519,9 +505,12 @@
         onValue(ref(db, 'settings/global'), (snapshot) => {
             const g = snapshot.val();
             if(!g) return;
-            document.getElementById('footer-logo-text').innerText = g.logoText || "MAKSYM RIZUN";
-            document.getElementById('footer-copy').innerText = g.copyright || "© 2026";
-            if(document.getElementById('footer-copy-ua')) document.getElementById('footer-copy-ua').innerText = g.copyright || "© 2026";
+            if(g.logoText) document.getElementById('footer-logo-text').innerText = g.logoText;
+            if(g.copyright) {
+                document.getElementById('footer-copy').innerText = g.copyright;
+                const copyUa = document.getElementById('footer-copy-ua');
+                if(copyUa) copyUa.innerText = g.copyright;
+            }
             
             if(g.phone) {
                 document.getElementById('f-phone-link').innerText = g.phone;
@@ -551,7 +540,17 @@
                 `).join('');
             }
 
+            // Після завантаження даних оновлюємо UI (плейсхолдери)
             updateUI();
+            
+            // Оновлюємо плейсхолдери форми
+            const isUa = currentLang === 'ua';
+            document.getElementById('nameInput').placeholder = isUa ? "Ваше ім'я" : "Your Name";
+            document.getElementById('contactInput').placeholder = isUa ? "Контакти (TG / Email)" : "Contact Details (TG / Email)";
+            document.getElementById('descInput').placeholder = isUa ? "Опишіть завдання (макс 300 симв)..." : "Describe your task (max 300 symbols)...";
+            document.getElementById('toast').innerText = isUa ? "✅ УСПІШНО! БРИФ ВІДПРАВЛЕНО." : "✅ SUCCESS! BRIEF SENT.";
+            document.getElementById('fileNameDisplayUa').style.display = isUa ? 'inline' : 'none';
+            document.getElementById('fileNameDisplay').style.display = isUa ? 'none' : 'inline';
         });
     </script>
 </body>

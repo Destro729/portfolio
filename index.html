@@ -235,8 +235,8 @@
         <div class="controls">
             <!-- Інтеграція перекладача через data-lang кнопки -->
             <div class="lang-switch">
-                <span class="lang-en" data-lang="uk">УКРАЇНСЬКА</span>
-                <span class="lang-ua" data-lang="en">ENGLISH</span>
+                <span class="lang-en" onclick="VersalTranslator.setLanguage('ua')">УКРАЇНСЬКА</span>
+                <span class="lang-ua" onclick="VersalTranslator.setLanguage('en')">ENGLISH</span>
             </div>
             <div class="theme-switch" onclick="toggleTheme()">
                 <div class="toggle"></div>
@@ -405,16 +405,22 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const grid = document.getElementById('projects-grid');
+        let projectsData = null;
 
         // --- ВИВІД ПРОЕКТІВ (ПОРТФОЛІО) ---
         onValue(ref(db, 'projects'), (snap) => {
-            const data = snap.val();
+            projectsData = snap.val();
+            renderPortfolio();
+        });
+
+        function renderPortfolio() {
             grid.innerHTML = "";
+            const currentLang = localStorage.getItem('anor_lang') || 'en';
             
-            if (data) {
-                const projectList = Object.keys(data).map(key => ({
+            if (projectsData) {
+                const projectList = Object.keys(projectsData).map(key => ({
                     id: key,
-                    ...data[key]
+                    ...projectsData[key]
                 })).reverse().slice(0, 4); 
 
                 projectList.forEach(p => {
@@ -422,6 +428,14 @@
                     card.className = 'project-card';
                     card.onclick = () => { window.location.href = `project-details.html?id=${p.id}`; };
                     
+                    // STATIC TRANSLATION LOGIC
+                    let title = currentLang === 'ua' ? p.titleUa : p.titleEn;
+                    let desc = currentLang === 'ua' ? p.shortDescUa : p.shortDescEn;
+
+                    // Fallback for old data
+                    if (!title) title = p.title ? (p.title.includes(' / ') ? p.title.split(' / ')[currentLang === 'ua' ? 0 : 1] : p.title) : 'Untitled';
+                    if (!desc) desc = p.shortDesc ? (p.shortDesc.includes(' / ') ? p.shortDesc.split(' / ')[currentLang === 'ua' ? 0 : 1] : p.shortDesc) : '';
+
                     const projectImg = p.mainImage || p.image || 'img/default.jpg';
                     
                     let displayCat = "Artifact";
@@ -435,8 +449,8 @@
                         <img src="${projectImg}" alt="${p.title || 'Project'}">
                         <div class="project-info">
                             <span class="project-tag">${displayCat}</span>
-                            <h3>${p.title || 'Untitled'}</h3>
-                            <p>${p.shortDesc ? p.shortDesc.substring(0, 60) + '...' : (p.desc ? p.desc.substring(0, 60) + '...' : '')}</p>
+                            <h3>${title}</h3>
+                            <p>${desc ? desc.substring(0, 60) + '...' : ''}</p>
                         </div>
                     `;
                     
@@ -456,7 +470,7 @@
             } else {
                 grid.innerHTML = "<p style='grid-column: 1/-1; text-align: center; opacity: 0.5;'>No projects found in the database.</p>";
             }
-        });
+        }
 
         // --- ПОВНІСТЮ ДИНАМІЧНИЙ ФУТЕР ТА ГЛОБАЛЬНІ НАЛАШТУВАННЯ ---
         onValue(ref(db, 'settings/global'), (snap) => {
@@ -530,14 +544,11 @@
             body.setAttribute('data-theme', body.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
         }
 
-        // Ми залишили логіку перемикання класів для візуальних Lang-UA/EN елементів, 
-        // але тепер translator.js підхоплює data-lang атрибути для Google Translate.
-        document.querySelectorAll('.lang-switch span').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const lang = btn.getAttribute('data-lang');
-                document.body.classList.toggle('ua', lang === 'uk');
-                toggleLangPlaceholders(lang === 'uk');
-            });
+        // Слухаємо зміну мови (від VersalTranslator)
+        window.addEventListener('langChanged', (e) => {
+            const lang = e.detail.lang;
+            toggleLangPlaceholders(lang === 'ua');
+            renderPortfolio();
         });
 
         function toggleLangPlaceholders(isUa) { 
@@ -556,6 +567,10 @@
                 fileUa.style.display = 'none';
             }
         }
+
+        // Ініціалізація плейсхолдерів при старті
+        const initLang = localStorage.getItem('anor_lang') || 'en';
+        toggleLangPlaceholders(initLang === 'ua');
 
         function handleFileSelect() {
             const file = document.getElementById('fileInput').files[0];

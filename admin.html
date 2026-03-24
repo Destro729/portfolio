@@ -193,6 +193,12 @@
             background: rgba(255,255,255,0.08);
         }
 
+        .lang-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
         .tags-custom-container {
             display: flex;
             flex-wrap: wrap;
@@ -405,47 +411,59 @@
             <h1 data-t="h_projects">Управління Артефактами</h1>
             <div class="card">
                 <div class="form-grid">
-                    <div class="form-group full-width">
-                        <label data-t="l_title">Назва проєкту</label>
-                        <input type="text" id="p-title" placeholder="Приклад: TikTok Stealth Bot / Stealth Bot EN">
+                    <div class="form-group full-width lang-split">
+                        <div>
+                            <label data-t="l_title_ua">Назва (UA)</label>
+                            <input type="text" id="p-title-ua" data-ph="ph_title_ua" placeholder="Назва українською">
+                        </div>
+                        <div>
+                            <label data-t="l_title_en">Title (EN)</label>
+                            <input type="text" id="p-title-en" data-ph="ph_title_en" placeholder="English Title">
+                        </div>
                     </div>
                     
                     <div class="form-group">
-                        <label data-t="l_meta">Мета-тег (Над назвою)</label>
-                        <input type="text" id="p-meta" placeholder="Приклад: AUTOMATION, 2026">
+                        <label data-t="l_meta">Мета-тег</label>
+                        <input type="text" id="p-meta" data-ph="ph_meta" placeholder="Приклад: AUTOMATION, 2026">
                     </div>
 
                     <div class="form-group">
-                        <label data-t="l_cat">Категорії та Технології</label>
+                        <label data-t="l_cat">Категорії</label>
                         <div class="tags-custom-container" id="tags-display" onclick="toggleTagsDropdown(event)">
                             <span style="color: var(--text-secondary); font-size: 0.9rem;">Оберіть зі списку...</span>
                         </div>
                         <div class="tags-dropdown" id="tags-dropdown"></div>
                     </div>
 
-                    <div class="form-group full-width">
-                        <label data-t="l_short">Короткий опис (UA/EN)</label>
-                        <input type="text" id="p-short" placeholder="Короткий рядок для картки на головній (двома мовами через /)">
+                    <div class="form-group full-width lang-split">
+                        <div>
+                            <label data-t="l_short_ua">Короткий опис (UA)</label>
+                            <input type="text" id="p-short-ua" data-ph="ph_short_ua" placeholder="Для картки (UA)">
+                        </div>
+                        <div>
+                            <label data-t="l_short_en">Short Desc (EN)</label>
+                            <input type="text" id="p-short-en" data-ph="ph_short_en" placeholder="For card (EN)">
+                        </div>
                     </div>
 
-                    <div class="form-group full-width">
-                        <label data-t="l_desc">Повний опис (Логіка та деталі)</label>
-                        <textarea id="p-desc" rows="5" placeholder="Розгорнутий текст для сторінки проекту. Використовуйте <br> для переносів."></textarea>
+                    <div class="form-group full-width lang-split">
+                        <div><label data-t="l_desc_ua">Повний опис (UA)</label><textarea id="p-desc-ua" rows="5"></textarea></div>
+                        <div><label data-t="l_desc_en">Full Description (EN)</label><textarea id="p-desc-en" rows="5"></textarea></div>
                     </div>
 
                     <div class="form-group">
-                        <label data-t="l_img">Головне зображення (Прямий URL)</label>
-                        <input type="text" id="p-img" placeholder="https://example.com/image.jpg">
+                        <label data-t="l_img">Головне зображення</label>
+                        <input type="text" id="p-img" data-ph="ph_img" placeholder="https://example.com/image.jpg">
                     </div>
 
                     <div class="form-group">
-                        <label data-t="l_link">GitHub або Demo Посилання</label>
-                        <input type="text" id="p-link" placeholder="https://github.com/user/repo">
+                        <label data-t="l_link">GitHub або Demo</label>
+                        <input type="text" id="p-link" data-ph="ph_link" placeholder="https://github.com/user/repo">
                     </div>
 
                     <div class="form-group full-width">
-                        <label data-t="l_gallery">Додаткові зображення (URL через кому)</label>
-                        <textarea id="p-gallery" rows="2" placeholder="url1.jpg, url2.jpg, url3.jpg"></textarea>
+                        <label data-t="l_gallery">Додаткові зображення</label>
+                        <textarea id="p-gallery" rows="2" data-ph="ph_gallery" placeholder="url1.jpg, url2.jpg, url3.jpg"></textarea>
                     </div>
 
                     <div class="form-group full-width">
@@ -475,7 +493,7 @@
             <div class="card">
                 <div class="form-group">
                     <label data-t="l_new_cat">Назва нової категорії/тегу</label>
-                    <input type="text" id="new-cat-name" placeholder="Приклад: UI/UX, PYTHON, AI">
+                    <input type="text" id="new-cat-name" data-ph="ph_new_cat" placeholder="Приклад: UI/UX, PYTHON, AI">
                 </div>
                 <button class="btn" onclick="addCategory()" data-t="btn_add_cat">Додати до Матриці</button>
             </div>
@@ -486,23 +504,23 @@
             <h1 data-t="h_global">Налаштування Футера & Системи</h1>
             <div class="card">
                 <div class="form-grid">
-                    <div class="form-group"><label>Текст Логотипу</label><input type="text" id="f-logo" placeholder="ANOR"></div>
-                    <div class="form-group"><label>Копірайт</label><input type="text" id="f-copy" placeholder="© 2026 ANOR CORE SYSTEM"></div>
+                    <div class="form-group"><label data-t="l_logo_text">Текст Логотипу</label><input type="text" id="f-logo" data-ph="ph_logo" placeholder="ANOR"></div>
+                    <div class="form-group"><label data-t="l_copyright">Копірайт</label><input type="text" id="f-copy" data-ph="ph_copy" placeholder="© 2026 ANOR CORE SYSTEM"></div>
                     
                     <div class="form-group full-width">
-                        <label>Опис під лого (UA)</label>
-                        <input type="text" id="f-role-ua" placeholder="UI\UX Веб Дизайнер та ШІ Python розробник.">
+                        <label data-t="l_role_ua">Опис під лого (UA)</label>
+                        <input type="text" id="f-role-ua" data-ph="ph_role_ua" placeholder="UI\UX Веб Дизайнер та ШІ Python розробник.">
                     </div>
                     <div class="form-group full-width">
-                        <label>Опис під лого (EN)</label>
-                        <input type="text" id="f-role-en" placeholder="UI\UX Web Designer & AI Python Developer.">
+                        <label data-t="l_role_en">Опис під лого (EN)</label>
+                        <input type="text" id="f-role-en" data-ph="ph_role_en" placeholder="UI\UX Web Designer & AI Python Developer.">
                     </div>
 
-                    <div class="form-group"><label>Контактний Телефон</label><input type="text" id="f-phone" placeholder="+380..."></div>
-                    <div class="form-group"><label>Контактний Email</label><input type="text" id="f-email" placeholder="example@gmail.com"></div>
+                    <div class="form-group"><label data-t="l_phone">Контактний Телефон</label><input type="text" id="f-phone" data-ph="ph_phone" placeholder="+380..."></div>
+                    <div class="form-group"><label data-t="l_email">Контактний Email</label><input type="text" id="f-email" data-ph="ph_email" placeholder="example@gmail.com"></div>
                     
                     <div class="form-group full-width">
-                        <label>Менеджер Соціальних Мереж</label>
+                        <label data-t="l_social_manager">Менеджер Соціальних Мереж</label>
                         <div class="social-add-row">
                             <select id="new-social-platform" style="flex: 0 0 150px;">
                                 <option value="telegram">Telegram</option>
@@ -516,7 +534,7 @@
                                 <option value="fiverr">Fiverr</option>
                                 <option value="link">Other Link</option>
                             </select>
-                            <input type="text" id="new-social-url" placeholder="Вставте URL (https://...)" style="flex: 1;">
+                            <input type="text" id="new-social-url" data-ph="ph_social_url" placeholder="Вставте URL (https://...)" style="flex: 1;">
                             <button class="btn" id="btn-add-social" onclick="addSocialLink()" style="padding: 12px 25px; margin: 0; height: auto; border-radius: 15px;"><i class="fa-solid fa-plus"></i></button>
                         </div>
                         <div id="social-links-list" class="social-manager-list"></div>
@@ -591,6 +609,14 @@
                 const key = el.getAttribute('data-t');
                 el.innerText = translations[lang][key] || el.innerText;
             });
+            
+            // Placeholder translation
+            document.querySelectorAll('[data-ph]').forEach(el => {
+                const key = el.getAttribute('data-ph');
+                if(translations[lang][key]) el.placeholder = translations[lang][key];
+            });
+
+            localStorage.setItem('admin_lang', lang);
         };
 
         window.showSection = (name) => {
@@ -678,26 +704,31 @@
         // --- PROJECTS LOGIC ---
         window.saveProject = () => {
             const data = {
-                title: document.getElementById('p-title').value,
+                titleUa: document.getElementById('p-title-ua').value,
+                titleEn: document.getElementById('p-title-en').value,
                 customMeta: document.getElementById('p-meta').value,
                 categories: selectedCategories, 
-                shortDesc: document.getElementById('p-short').value,
-                description: document.getElementById('p-desc').value,
+                shortDescUa: document.getElementById('p-short-ua').value,
+                shortDescEn: document.getElementById('p-short-en').value,
+                descUa: document.getElementById('p-desc-ua').value,
+                descEn: document.getElementById('p-desc-en').value,
                 mainImage: document.getElementById('p-img').value,
                 gallery: document.getElementById('p-gallery').value.split(',').map(s => s.trim()).filter(s => s),
                 link: document.getElementById('p-link').value,
                 onMain: document.getElementById('p-on-main').checked,
-                time: Date.now()
+                time: editingProjectId ? undefined : Date.now() // Keep original time if editing
             };
 
-            if(!data.title) return alert("Title is required!");
+            if(!data.titleEn) return alert("Title (EN) is required!");
 
             if(editingProjectId) {
+                // Preserve creation time
                 update(ref(db, `projects/${editingProjectId}`), data).then(() => {
                     alert("Артефакт оновлено!");
                     cancelEdit();
                 });
             } else {
+                data.time = Date.now();
                 push(ref(db, 'projects'), data).then(() => {
                     alert("Артефакт створено!");
                     clearForm();
@@ -710,14 +741,24 @@
                 const d = snap.val();
                 if(!d) return;
                 editingProjectId = id;
-                document.getElementById('p-title').value = d.title || "";
+                
+                // Support for old data (Split by /)
+                const split = (txt) => (txt && txt.includes(' / ')) ? txt.split(' / ') : [txt, txt];
+                
+                document.getElementById('p-title-ua').value = d.titleUa || split(d.title)[0] || "";
+                document.getElementById('p-title-en').value = d.titleEn || split(d.title)[1] || split(d.title)[0] || "";
+                
                 document.getElementById('p-meta').value = d.customMeta || "";
                 
                 selectedCategories = d.categories || (d.category ? [d.category] : []);
                 renderTagsUI();
 
-                document.getElementById('p-short').value = d.shortDesc || "";
-                document.getElementById('p-desc').value = d.description || "";
+                document.getElementById('p-short-ua').value = d.shortDescUa || split(d.shortDesc)[0] || "";
+                document.getElementById('p-short-en').value = d.shortDescEn || split(d.shortDesc)[1] || split(d.shortDesc)[0] || "";
+                
+                document.getElementById('p-desc-ua').value = d.descUa || split(d.description)[0] || "";
+                document.getElementById('p-desc-en').value = d.descEn || split(d.description)[1] || split(d.description)[0] || "";
+
                 document.getElementById('p-img').value = d.mainImage || "";
                 document.getElementById('p-link').value = d.link || "";
                 document.getElementById('p-gallery').value = d.gallery ? d.gallery.join(', ') : "";
@@ -749,10 +790,11 @@
             const data = snap.val();
             for(let id in data) {
                 const catsLabel = data[id].categories ? data[id].categories.join(', ') : (data[id].category || "");
+                const title = data[id].titleEn || data[id].title || "No Title";
                 list.innerHTML += `
                     <div class="project-item">
                         <div class="project-info">
-                            <h4 style="font-family: var(--font-hd); font-size: 0.9rem;">${data[id].title}</h4>
+                            <h4 style="font-family: var(--font-hd); font-size: 0.9rem;">${title}</h4>
                             <span style="font-size:0.75rem; color:var(--text-secondary)">${catsLabel} ${data[id].onMain ? ' • [SELECTED]' : ''}</span>
                         </div>
                         <div class="project-actions">
@@ -877,7 +919,7 @@
             if(confirm("Видалити цей елемент з бази Спектраля назавжди?")) remove(ref(db, path));
         };
         
-        setLang('ua');
+        setLang(localStorage.getItem('admin_lang') || 'ua');
     </script>
 </body>
 </html>
