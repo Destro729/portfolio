@@ -493,7 +493,8 @@
         window.setLang = (lang) => {
             currentLang = lang;
             document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('lang-' + lang).classList.add('active');
+            const langBtn = document.getElementById('lang-' + lang);
+            if(langBtn) langBtn.classList.add('active');
             document.querySelectorAll('[data-t]').forEach(el => {
                 const key = el.getAttribute('data-t');
                 el.innerText = translations[lang][key] || el.innerText;
@@ -501,10 +502,16 @@
         };
 
         window.showSection = (name) => {
-            ['projects', 'categories', 'footer'].forEach(s => document.getElementById('sec-' + s).classList.add('hidden'));
-            document.getElementById('sec-' + name).classList.remove('hidden');
+            ['projects', 'categories', 'footer'].forEach(s => {
+                const sec = document.getElementById('sec-' + s);
+                if(sec) sec.classList.add('hidden');
+            });
+            const targetSec = document.getElementById('sec-' + name);
+            if(targetSec) targetSec.classList.remove('hidden');
+            
             document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-            document.getElementById('btn-' + name).classList.add('active');
+            const navBtn = document.getElementById('btn-' + name);
+            if(navBtn) navBtn.classList.add('active');
         };
 
         window.setTheme = (theme) => {
@@ -520,12 +527,14 @@
         };
 
         document.addEventListener('click', () => {
-            document.getElementById('tags-dropdown').classList.remove('active');
+            const dropdown = document.getElementById('tags-dropdown');
+            if(dropdown) dropdown.classList.remove('active');
         });
 
         function renderTagsUI() {
             const display = document.getElementById('tags-display');
             const dropdown = document.getElementById('tags-dropdown');
+            if(!display || !dropdown) return;
             
             if (selectedCategories.length === 0) {
                 display.innerHTML = '<span style="color: var(--text-secondary); font-size: 0.9rem;">Оберіть зі списку...</span>';
@@ -565,13 +574,15 @@
 
         // --- CATEGORIES ---
         window.addCategory = () => {
-            const name = document.getElementById('new-cat-name').value;
+            const nameInput = document.getElementById('new-cat-name');
+            const name = nameInput.value;
             if(name) push(ref(db, 'categories'), { name: name.toUpperCase() });
-            document.getElementById('new-cat-name').value = "";
+            nameInput.value = "";
         };
 
         onValue(ref(db, 'categories'), (snap) => {
             const list = document.getElementById('cat-list');
+            if(!list) return;
             list.innerHTML = "";
             const data = snap.val();
             allCategories = [];
@@ -639,19 +650,25 @@
         window.cancelEdit = () => {
             editingProjectId = null;
             clearForm();
-            document.getElementById('btn-text').innerText = translations[currentLang].btn_save;
-            document.getElementById('btn-cancel-edit').classList.add('hidden');
+            const btnText = document.getElementById('btn-text');
+            if(btnText) btnText.innerText = translations[currentLang].btn_save;
+            const cancelBtn = document.getElementById('btn-cancel-edit');
+            if(cancelBtn) cancelBtn.classList.add('hidden');
         };
 
         function clearForm() {
-            document.querySelectorAll('#sec-projects input, #sec-projects textarea').forEach(i => i.value = "");
-            document.getElementById('p-on-main').checked = false;
+            document.querySelectorAll('#sec-projects input, #sec-projects textarea').forEach(i => {
+                if(i.type !== 'checkbox') i.value = "";
+            });
+            const onMainCheck = document.getElementById('p-on-main');
+            if(onMainCheck) onMainCheck.checked = false;
             selectedCategories = [];
             renderTagsUI();
         }
 
         onValue(ref(db, 'projects'), (snap) => {
             const list = document.getElementById('project-list');
+            if(!list) return;
             list.innerHTML = "";
             const data = snap.val();
             for(let id in data) {
