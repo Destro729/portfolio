@@ -528,6 +528,7 @@
                 <button class="cms-tab active" onclick="switchCmsTab('index')"><i class="fa-solid fa-house"></i> Головна (Index)</button>
                 <button class="cms-tab" onclick="switchCmsTab('archive')"><i class="fa-solid fa-folder-open"></i> Архів (All Projects)</button>
                 <button class="cms-tab" onclick="switchCmsTab('details')"><i class="fa-solid fa-file-lines"></i> Деталі (Project Details)</button>
+                <button class="cms-tab" onclick="switchCmsTab('crm')"><i class="fa-solid fa-envelope"></i> Повідомлення (CRM)</button>
             </div>
 
             <!-- INDEX PAGE -->
@@ -602,7 +603,32 @@
                 </div>
             </div>
 
-            <button class="btn" onclick="saveCMSContent()" style="margin-top:20px; width:100%; display: flex; justify-content: center; align-items: center;"><i class="fa-solid fa-save" style="margin-right: 10px;"></i> ОПЕРУВАТИ (ЗБЕРЕГТИ ВЕСЬ КОНТЕНТ)</button>
+            <!-- CRM MESSAGES -->
+            <div id="cms-crm" class="cms-section">
+                <div class="card">
+                    <h3 style="margin-bottom:20px; font-family:var(--font-hd);"><i class="fa-solid fa-inbox"></i> СКРИНЬКА ЗАЯВОК</h3>
+                    <div id="crm-messages-list" style="display: flex; flex-direction: column; gap: 15px;">
+                        <p style="text-align:center; opacity:0.5; padding:40px;">Завантаження повідомлень...</p>
+                    </div>
+                </div>
+            </div>
+
+            <style>
+                .msg-card { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 15px; padding: 20px; position: relative; transition: var(--transition); }
+                .msg-card:hover { border-color: var(--accent); background: rgba(255,255,255,0.05); }
+                .msg-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; }
+                .msg-client { font-family: var(--font-hd); font-weight: 700; color: var(--text); }
+                .msg-date { font-size: 0.75rem; opacity: 0.5; }
+                .msg-body { font-size: 0.9rem; line-height: 1.5; color: var(--text-secondary); margin: 15px 0; white-space: pre-wrap; }
+                .msg-actions { display: flex; gap: 10px; margin-top: 15px; }
+                .btn-sm { padding: 8px 15px; font-size: 0.7rem; border-radius: 8px; cursor: pointer; border: 1px solid var(--border); background: var(--card); color: var(--text); font-family: var(--font-hd); text-transform: uppercase; transition: 0.3s; }
+                .btn-sm.btn-reply { border-color: var(--accent); color: var(--accent); }
+                .btn-sm.btn-reply:hover { background: var(--accent); color: #fff; }
+                .btn-sm.btn-del { color: #ff4757; border-color: rgba(255,71,87,0.3); }
+                .btn-sm.btn-del:hover { background: #ff4757; color: #fff; }
+            </style>
+
+            <button class="btn btn-save-cms" onclick="saveCMSContent()" style="margin-top:20px; width:100%; display: flex; justify-content: center; align-items: center;"><i class="fa-solid fa-save" style="margin-right: 10px;"></i> ОПЕРУВАТИ (ЗБЕРЕГТИ ВЕСЬ КОНТЕНТ)</button>
         </section>
 
         <section id="sec-footer" class="hidden">
@@ -1217,6 +1243,45 @@
         window.deleteItem = (path) => {
             if(confirm("Видалити цей елемент з бази Спектраля назавжди?")) remove(ref(db, path));
         };
+
+        // --- CRM LOGIC ---
+        function loadMessages() {
+            onValue(ref(db, 'messages'), (snap) => {
+                const msgs = snap.val();
+                const container = document.getElementById('crm-messages-list');
+                if(!container) return;
+                if(!msgs) {
+                    container.innerHTML = '<p style="text-align:center; opacity:0.5; padding:40px;">Скринька порожня.</p>';
+                    return;
+                }
+                
+                const sorted = Object.keys(msgs).map(key => ({ id: key, ...msgs[key] })).reverse();
+                container.innerHTML = sorted.map(m => `
+                    <div class="msg-card">
+                        <div class="msg-header">
+                            <div>
+                                <div class="msg-client">${m.name}</div>
+                                <div style="font-size: 0.8rem; color: var(--accent);">${m.email}</div>
+                            </div>
+                            <div class="msg-date">${new Date(m.date).toLocaleString()}</div>
+                        </div>
+                        <div class="msg-body">${m.message}</div>
+                        <div class="msg-actions">
+                            <a href="mailto:${m.email}?subject=Spectral Project: ${m.name}" class="btn-sm btn-reply" style="text-decoration:none;">ВІДПОВІСТИ</a>
+                            <button class="btn-sm btn-del" onclick="deleteMessage('${m.id}')">ВИДАЛИТИ</button>
+                        </div>
+                    </div>
+                `).join('');
+            });
+        }
+
+        window.deleteMessage = (id) => {
+            if(confirm(localStorage.getItem('admin_lang') === 'ua' ? "Видалити це повідомлення?" : "Delete this message?")) {
+                remove(ref(db, 'messages/' + id));
+            }
+        };
+
+        loadMessages();
         
         setLang(localStorage.getItem('admin_lang') || 'ua');
     </script>

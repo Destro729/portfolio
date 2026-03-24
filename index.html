@@ -363,9 +363,9 @@
             <h2 class="lang-en">PROJECT BRIEF</h2>
             <h2 class="lang-ua">БРИФ ПРОЕКТУ</h2>
             <form id="briefForm">
-                <input type="text" id="nameInput" placeholder="Your Name" required name="from_name">
-                <input type="text" id="contactInput" placeholder="Contact Details (TG / Email)" required name="contact_info">
-                <textarea id="descInput" placeholder="Describe your task (max 300 symbols)..." maxlength="300" rows="5" required name="message"></textarea>
+                <input type="text" id="nameInput" placeholder="Ваше Ім'я / Your Name" required name="from_name">
+                <input type="email" id="contactInput" placeholder="Ваш Email / Your Email" required name="reply_to">
+                <textarea id="descInput" placeholder="Опишіть ваше завдання (макс. 300 символів) / Describe your task..." maxlength="300" rows="5" required name="message"></textarea>
                 
                 <div class="file-upload">
                     <i class="fa-solid fa-paperclip"></i>
@@ -659,6 +659,60 @@
         const closeBtn = document.getElementById('closeModalBtn');
         closeBtn.onmouseover = () => closeBtn.style.color = 'var(--accent)';
         closeBtn.onmouseleave = () => closeBtn.style.color = 'var(--text)';
+        // --- FORM LOGIC (EMAILJS + FIREBASE) ---
+        const briefForm = document.getElementById('briefForm');
+        briefForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = briefForm.querySelector('button');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = (localStorage.getItem('anor_lang') === 'ua') ? 'ВІДПРАВЛЯЮ...' : 'SENDING...';
+            btn.disabled = true;
+
+            const formData = {
+                name: document.getElementById('nameInput').value,
+                email: document.getElementById('contactInput').value,
+                message: document.getElementById('descInput').value,
+                date: new Date().toISOString()
+            };
+
+            try {
+                // 1. Save to Firebase Messaging
+                const { push, ref: dbRef } = await import("https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js");
+                await push(dbRef(db, 'messages'), formData);
+
+                // 2. Send via EmailJS
+                // ПРИМІТКА ДЛЯ VERSO: Заміни ці значення своїми з EmailJS
+                const SERVICE_ID = "service_default"; 
+                const TEMPLATE_ID = "template_default"; 
+                const PUBLIC_KEY = "YOUR_PUBLIC_KEY"; 
+
+                if (PUBLIC_KEY !== "YOUR_PUBLIC_KEY") {
+                    await emailjs.send(SERVICE_ID, TEMPLATE_ID, {
+                        from_name: formData.name,
+                        reply_to: formData.email,
+                        message: formData.message,
+                        to_email: "Destro729@gmail.com"
+                    }, PUBLIC_KEY);
+                }
+
+                showToast(localStorage.getItem('anor_lang') === 'ua' ? "✅ УСПІХ! БРИФ ВІДПРАВЛЕНО." : "✅ SUCCESS! BRIEF SENT.");
+                briefForm.reset();
+                setTimeout(closeModal, 2000);
+            } catch (err) {
+                console.error("Submission error:", err);
+                alert("Помилка відправки. Спробуйте ще раз.");
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        };
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
     </script>
 </body>
 </html>
