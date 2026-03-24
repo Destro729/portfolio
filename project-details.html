@@ -167,6 +167,30 @@
         .gallery { margin-top: 80px; display: grid; gap: 30px; }
         .gallery img { width: 100%; border-radius: 20px; border: 1px solid var(--border); }
 
+        /* --- LIKE BUTTON STYLES --- */
+        .like-sidebar-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: var(--text);
+            font-family: var(--font-hd);
+            font-weight: 700;
+            transition: var(--transition);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }
+        .like-sidebar-btn:hover { border-color: #ff3b30; background: rgba(255, 59, 48, 0.05); }
+        .like-sidebar-btn.liked { background: #ff3b30; border-color: #ff3b30; color: white; }
+        .like-sidebar-btn i { transition: 0.3s; font-size: 1rem; }
+        .like-sidebar-btn.liked i { transform: scale(1.2); }
+
         /* --- МОДАЛЬНЕ ВІКНО БРИФУ (З INDEX.HTML) --- */
         .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.94); display: none; justify-content: center; align-items: center; z-index: 3000; padding: 20px; backdrop-filter: blur(20px); overflow: hidden; }
         .modal-blob {
@@ -326,7 +350,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+        import { getDatabase, ref, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
         const firebaseConfig = { databaseURL: "https://anor-core-2026-default-rtdb.europe-west1.firebasedatabase.app" };
         const app = initializeApp(firebaseConfig);
@@ -410,6 +434,10 @@
                 tags = typeof data.category === 'string' ? data.category.split(',').map(t => t.trim()) : [];
             }
 
+            // Перевірка стану лайка локально
+            const isLiked = localStorage.getItem(`liked_${projectId}`) === 'true';
+            const likesCount = data.likes || 0;
+
             container.innerHTML = `
                 <div class="project-meta">${meta}</div>
                 <h1>${title}</h1>
@@ -426,6 +454,13 @@
                             <h3>${currentLang === 'ua' ? 'КАТЕГОРІЇ' : 'CATEGORIES'}</h3>
                             <div>${tags.map(t => `<a href="all-projects.html?category=${encodeURIComponent(t)}" class="tech-tag">${t}</a>`).join('')}</div>
                         </div>
+                        <div class="info-block">
+                            <h3>${currentLang === 'ua' ? 'ОЦІНИТИ' : 'APPRECIATE'}</h3>
+                            <button id="likeBtn" class="like-sidebar-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike()">
+                                <i class="${isLiked ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
+                                <span id="likeCount">${likesCount}</span>
+                            </button>
+                        </div>
                         ${data.githubLink ? `
                         <div class="info-block">
                             <h3>GITHUB</h3>
@@ -441,6 +476,32 @@
                 ` : ''}
             `;
         }
+
+        // Global Like Function attached to window for HTML access
+        window.toggleLike = () => {
+            if (!projectId) return;
+            
+            const isLiked = localStorage.getItem(`liked_${projectId}`) === 'true';
+            const newStatus = !isLiked;
+            
+            localStorage.setItem(`liked_${projectId}`, newStatus);
+            
+            // Оновлюємо UI миттєво для кращого UX
+            const btn = document.getElementById('likeBtn');
+            const icon = btn.querySelector('i');
+            const countSpan = document.getElementById('likeCount');
+            
+            btn.classList.toggle('liked');
+            icon.className = newStatus ? 'fa-solid fa-heart' : 'fa-regular fa-heart';
+            // Візуально змінюємо лічильник (справжнє значення прийде з БД)
+            countSpan.innerText = parseInt(countSpan.innerText) + (newStatus ? 1 : -1);
+
+            // Транзакція в Firebase
+            const projectRef = ref(db, `projects/${projectId}/likes`);
+            runTransaction(projectRef, (currentLikes) => {
+                return (currentLikes || 0) + (newStatus ? 1 : -1);
+            });
+        };
 
         if (projectId) {
             onValue(ref(db, `projects/${projectId}`), (snap) => {

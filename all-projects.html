@@ -99,9 +99,8 @@
         .project-desc { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 25px; min-height: 50px; line-height: 1.6; }
 
         .project-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 20px; margin-top: auto; }
-        .like-btn { cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 800; transition: 0.2s; color: var(--text-secondary); position: relative; z-index: 10; }
-        .like-btn:hover { color: var(--text); transform: scale(1.05); }
-        .like-btn.liked { color: #ff3b30; }
+        .like-stat { display: flex; align-items: center; gap: 8px; font-weight: 800; color: var(--text-secondary); font-size: 0.8rem; }
+        .like-stat i { color: #ff3b30; }
 
         footer { padding: 100px 8%; border-top: 1px solid var(--border); margin-top: 100px; background: var(--bg); }
         .footer-grid { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 40px; }
@@ -168,7 +167,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
         const firebaseConfig = {
             databaseURL: "https://anor-core-2026-default-rtdb.europe-west1.firebasedatabase.app"
@@ -220,29 +219,6 @@
             renderProjects(category);
         };
 
-        window.toggleLike = async (event, btn, projectId) => {
-            event.preventDefault();
-            event.stopPropagation();
-            const icon = btn.querySelector('i');
-            const countSpan = btn.querySelector('.count');
-            let count = parseInt(countSpan.innerText);
-            const isLiked = icon.classList.contains('fa-solid');
-            const newCount = isLiked ? Math.max(0, count - 1) : count + 1;
-
-            if (isLiked) {
-                icon.classList.replace('fa-solid', 'fa-regular');
-                btn.classList.remove('liked');
-            } else {
-                icon.classList.replace('fa-regular', 'fa-solid');
-                btn.classList.add('liked');
-            }
-            countSpan.innerText = newCount;
-
-            try {
-                await update(ref(db, `projects/${projectId}`), { likes: newCount });
-            } catch (e) { console.error("Error updating likes:", e); }
-        };
-
         // Завантаження категорій
         onValue(ref(db, 'categories'), (snapshot) => {
             const container = document.getElementById('filtersContainer');
@@ -256,6 +232,18 @@
                 const isActive = currentFilter === catName ? 'active' : '';
                 container.innerHTML += `<button class="filter-btn ${isActive}" onclick="filterProjects('${catName}', this)">${catName}</button>`;
             });
+
+            // Check URL for category filter after categories are loaded
+            const urlParams = new URLSearchParams(window.location.search);
+            const paramCat = urlParams.get('category');
+            if(paramCat) {
+                const targetBtn = Array.from(document.querySelectorAll('.filter-btn')).find(b => b.innerText === paramCat);
+                if(targetBtn) {
+                    filterProjects(paramCat, targetBtn);
+                } else {
+                    filterProjects(paramCat, null); // Filter even if button not found immediately (fallback)
+                }
+            }
         });
 
         // Завантаження проектів
@@ -296,9 +284,9 @@
                         <h3 class="project-title">${title}</h3>
                         <p class="project-desc">${desc}</p>
                         <div class="project-footer">
-                            <div class="like-btn" onclick="toggleLike(event, this, '${p.id}')">
-                                <i class="fa-regular fa-heart"></i> 
-                                <span class="count">${likes}</span>
+                            <div class="like-stat">
+                                <i class="fa-solid fa-heart"></i> 
+                                <span>${likes}</span>
                             </div>
                             <span style="color: var(--accent); font-weight: 800; font-size: 0.7rem; letter-spacing: 1px; text-transform: uppercase;">Details</span>
                         </div>
