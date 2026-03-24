@@ -30,25 +30,14 @@
         applyLang: function(lang) {
             // Перемикання класів на body
             if (lang === 'ua') {
+                document.documentElement.setAttribute('lang', 'uk');
                 document.body.classList.add('ua');
                 document.body.classList.remove('en');
-                // Показати/сховати елементи з класами lang-ua/lang-en
-                document.querySelectorAll('.lang-ua').forEach(el => el.style.display = 'block'); // або inline-block в залежності від CSS, але block безпечніше для тексту
-                document.querySelectorAll('.lang-en').forEach(el => el.style.display = 'none');
             } else {
+                document.documentElement.setAttribute('lang', 'en');
                 document.body.classList.add('en');
                 document.body.classList.remove('ua');
-                document.querySelectorAll('.lang-en').forEach(el => el.style.display = 'block');
-                document.querySelectorAll('.lang-ua').forEach(el => el.style.display = 'none');
             }
-            
-            // Специфічні фікси для display властивостей, якщо вони inline
-            document.querySelectorAll('span.lang-ua, a.lang-ua').forEach(el => {
-                if(lang === 'ua') el.style.display = 'inline-block';
-            });
-            document.querySelectorAll('span.lang-en, a.lang-en').forEach(el => {
-                if(lang === 'en') el.style.display = 'inline-block';
-            });
         }
     };
 

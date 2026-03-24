@@ -209,12 +209,10 @@
         .social-icons a { width: 50px; height: 50px; background: var(--card); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; color: var(--text); border: 1px solid var(--border); transition: 0.3s; }
         .social-icons a:hover { background: var(--accent); color: #fff; transform: translateY(-5px); border-color: var(--accent); }
 
-        .lang-ua { display: none; }
-        body.ua .lang-en { display: none; }
-        body.ua .lang-ua { display: block; }
+        body:not(.ua) .lang-ua { display: none !important; }
+        body.ua .lang-en { display: none !important; }
 
-        @media (max-width: 900px) { 
-            .bento, .portfolio-grid { grid-template-columns: 1fr; } 
+        @media (max-width: 900px) {             .bento, .portfolio-grid { grid-template-columns: 1fr; } 
             .wide { grid-column: span 1; } 
             .hero { padding-top: 200px; } 
             .footer-grid { flex-direction: column; text-align: center; align-items: center; }
@@ -372,7 +370,7 @@
                 <div class="file-upload">
                     <i class="fa-solid fa-paperclip"></i>
                     <span id="fileNameDisplay" class="lang-en">Attach file (optional)</span>
-                    <span id="fileNameDisplayUa" class="lang-ua" style="display:none;">Додати файл (опціонально)</span>
+                    <span id="fileNameDisplayUa" class="lang-ua">Додати файл (опціонально)</span>
                     <input type="file" id="fileInput" onchange="handleFileSelect()">
                 </div>
 
@@ -556,16 +554,6 @@
             document.getElementById('contactInput').placeholder = isUa ? "Контакти (TG / Email)" : "Contact Details (TG / Email)";
             document.getElementById('descInput').placeholder = isUa ? "Опишіть завдання (макс 300 симв)..." : "Describe your task (max 300 symbols)...";
             document.getElementById('toast').innerText = isUa ? "✅ УСПІШНО! БРИФ ВІДПРАВЛЕНО." : "✅ SUCCESS! BRIEF SENT.";
-            
-            const fileEn = document.getElementById('fileNameDisplay');
-            const fileUa = document.getElementById('fileNameDisplayUa');
-            if (isUa) {
-                fileEn.style.display = 'none';
-                fileUa.style.display = 'inline';
-            } else {
-                fileEn.style.display = 'inline';
-                fileUa.style.display = 'none';
-            }
         }
 
         // Ініціалізація плейсхолдерів при старті

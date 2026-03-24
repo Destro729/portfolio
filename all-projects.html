@@ -29,7 +29,8 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: var(--bg); color: var(--text); font-family: var(--font-main); padding: 120px 8% 0 8%; transition: background 0.5s; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+        body { background: var(--bg); color: var(--text); font-family: var(--font-main); padding-top: 120px; transition: background 0.5s; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+        main { padding: 0 8%; flex-grow: 1; display: flex; flex-direction: column; }
 
         .nav-header {
             position: fixed; top: 0; left: 0; width: 100%;
@@ -113,6 +114,9 @@
         .social-icons a { width: 50px; height: 50px; background: var(--card); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; color: var(--text); border: 1px solid var(--border); transition: 0.3s; }
         .social-icons a:hover { background: var(--accent); color: #fff; transform: translateY(-5px); border-color: var(--accent); }
 
+        body:not(.ua) .lang-ua { display: none !important; }
+        body.ua .lang-en { display: none !important; }
+
         @media (max-width: 900px) { 
             .projects-grid { grid-template-columns: 1fr; } 
             .footer-grid { flex-direction: column; text-align: center; align-items: center; }
@@ -135,7 +139,7 @@
 
     <main>
         <h1 class="lang-en">ALL<br>PROJECTS</h1>
-        <h1 class="lang-ua" style="display:none;">ВСІ<br>ПРОЄКТИ</h1>
+        <h1 class="lang-ua">ВСІ<br>ПРОЄКТИ</h1>
 
         <div class="filters" id="filtersContainer">
             <button class="filter-btn active" onclick="filterProjects('ALL', this)">ALL</button>
@@ -156,9 +160,9 @@
             <div style="text-align: right;">
                 <p id="footer-logo-text" style="font-weight: 800; color: var(--text); font-family: var(--font-hd); text-transform: uppercase;">MAKSYM RIZUN</p>
                 <p style="color: var(--text-secondary); margin-top: 5px;" class="lang-en" id="f-role-en">Designer & AI Engineer 2026</p>
-                <p style="color: var(--text-secondary); margin-top: 5px; display:none;" class="lang-ua" id="f-role-ua">Дизайнер та AI Інженер 2026</p>
+                <p style="color: var(--text-secondary); margin-top: 5px;" class="lang-ua" id="f-role-ua">Дизайнер та AI Інженер 2026</p>
                 <p id="footer-copy" style="color: var(--text-secondary); opacity: 0.5; font-size: 0.8rem; margin-top: 15px;" class="lang-en">&copy; All Rights Reserved.</p>
-                <p id="footer-copy-ua" style="color: var(--text-secondary); opacity: 0.5; font-size: 0.8rem; margin-top: 15px; display:none;" class="lang-ua">&copy; Всі права захищено.</p>
+                <p id="footer-copy-ua" style="color: var(--text-secondary); opacity: 0.5; font-size: 0.8rem; margin-top: 15px;" class="lang-ua">&copy; Всі права захищено.</p>
             </div>
         </div>
     </footer>
@@ -184,6 +188,13 @@
         window.toggleTheme = () => {
             document.body.classList.toggle('light-theme');
         };
+
+        window.toggleLang = () => {
+            const nextLang = currentLang === 'ua' ? 'en' : 'ua';
+            if (typeof VersalTranslator !== 'undefined') {
+                VersalTranslator.setLanguage(nextLang);
+            }
+        };
         
         // Слухаємо зміну мови від translator.js
         window.addEventListener('langChanged', (e) => {
@@ -196,11 +207,6 @@
             // Отримуємо актуальну мову з локалстореджу або дефолт
             currentLang = localStorage.getItem('anor_lang') || 'en';
 
-            const ens = document.querySelectorAll('.lang-en');
-            const uas = document.querySelectorAll('.lang-ua');
-            ens.forEach(el => el.style.display = currentLang === 'en' ? 'block' : 'none');
-            uas.forEach(el => el.style.display = currentLang === 'ua' ? 'block' : 'none');
-            
             const allBtn = document.querySelector('.filter-btn[onclick*="ALL"]');
             if (allBtn) {
                 allBtn.innerText = currentLang === 'en' ? 'ALL' : 'ВСІ';
